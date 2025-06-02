@@ -26,6 +26,10 @@ async def join(ctx):
     """ボイスチャンネルに参加"""
     if ctx.author.voice:
         channel = ctx.author.voice.channel
+        # すでにボイスチャンネルに参加している場合
+        if ctx.guild.voice_client is not None:
+            await ctx.send("すでにボイスチャンネルに参加しています。")
+            return
         await channel.connect()
         await ctx.send("ボイスチャンネルに参加しました。")
     else:
@@ -79,6 +83,12 @@ async def on_message(message):
     # Bot自身のメッセージは無視
     if message.author.bot:
         return
+
+    # コマンドは読み上げない
+    ctx = await bot.get_context(message)
+    if ctx.valid:
+        await bot.process_commands(message)
+        return
     
     # ボイスチャンネルに接続している場合のみ読み上げ
     voice_client = message.guild.voice_client
@@ -86,8 +96,6 @@ async def on_message(message):
         await voice_queue[message.guild.id].put(message.content)
         if not playing_flags[message.guild.id]:
             await play_next(message.guild)
-
-    await bot.process_commands(message)  # コマンドも引き続き使えるように
 
 @bot.command()
 async def leave(ctx):
