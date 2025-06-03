@@ -1,5 +1,9 @@
 import os
+import json
 import subprocess
+
+with open('users.json', 'r', encoding='utf-8') as f:
+    user_settings=json.load(f)
 
 def synthesize_voicepeak(voicepeak_path: str, output_path: str, text: str, narrator: str="", emotion: str="") -> bytes:
     """

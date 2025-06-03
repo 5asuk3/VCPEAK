@@ -5,16 +5,22 @@ import json
 import asyncio
 import discord
 from discord.ext import commands    
-from synthesize_voicepeak import synthesize_voicepeak
+from vp_service import synthesize_voicepeak
 import subprocess
 
 # トークンを外部ファイルから読み込む
 with open('config.json', 'r', encoding='utf-8') as f:
-    config=json.load(f)
+    data=json.load(f)
+
+with open('servers.json', 'r', encoding='utf-8') as f:
+    server_settings=json.load(f)
+
+config=data['config']
+user_default=data['user_default']
+server_default=data['server_default']
 
 TOKEN= config['discord_token']  # config.jsonからトークンを取得
 VOICEPEAK_PATH=config['voicepeak_path']  # Voicepeakの実行ファイルのパス
-narrators=[]
 
 try:
     result = subprocess.run([VOICEPEAK_PATH, "--list-narrator"], check=True, stdout=subprocess.PIPE, text=True)
@@ -36,6 +42,15 @@ playing_flags = collections.defaultdict(lambda: False)  # 再生中フラグ
 async def on_ready():
     await bot.tree.sync()
     print(f"Logged in as {bot.user}")
+
+@bot.event
+async def on_guild_join(guild):
+    print(f"Botがサーバー「{guild.name}」({guild.id}) に参加しました。")
+    if guild.id not in server_settings:
+        server_settings[guild.id] = server_default.copy()
+        with open('servers.json', 'w', encoding='utf-8') as f:
+            json.dump(server_settings, f, indent=4)
+    
 
 @bot.hybrid_group(name="config", description="設定関連のコマンド")
 async def config(ctx):

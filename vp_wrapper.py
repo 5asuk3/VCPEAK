@@ -1,0 +1,18 @@
+import subprocess
+
+def synthesize_vp(voicepeak_path: str, text: str, output_path: str, narrator: str="", emotion: str="", speed: str="", pitch: str="") -> bytes:
+    cmd = [
+        voicepeak_path,
+        "-s", text,
+        "-o", output_path,
+        "-n", narrator,
+        "-e", emotion,
+        "--speed", speed,
+        "--pitch", pitch
+    ]
+    try:
+        result = subprocess.run(cmd, check=True)
+        return result.stdout
+    except subprocess.CalledProcessError as e:
+        print(f"Voicepeak音声合成に失敗しました: {e}")
+        raise
