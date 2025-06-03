@@ -1,6 +1,7 @@
+import os
 import subprocess
 
-def synthesize_voicepeak(text: str, output_path: str, voicepeak_path: str = "voicepeak") -> bytes:
+def synthesize_voicepeak(voicepeak_path: str, output_path: str, text: str, narrator: str="", emotion: str="") -> bytes:
     """
     Voicepeakコマンドラインで音声合成を行う関数
 
@@ -11,10 +12,12 @@ def synthesize_voicepeak(text: str, output_path: str, voicepeak_path: str = "voi
     cmd = [
         voicepeak_path,
         "-s", text,
+        "-n", narrator,
+        "-e", emotion,
         "-o", output_path
     ]
     try:
-        result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE)
+        result = subprocess.run(cmd, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         print(f"Voicepeak音声合成に失敗しました: {e}")

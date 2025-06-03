@@ -4,16 +4,27 @@ import os
 import json
 import asyncio
 import discord
-from discord.ext import commands
+from discord.ext import commands    
 from synthesize_voicepeak import synthesize_voicepeak
+import subprocess
 
 # トークンを外部ファイルから読み込む
 with open('config.json', 'r', encoding='utf-8') as f:
     config=json.load(f)
 
 TOKEN= config['discord_token']  # config.jsonからトークンを取得
-SOUND_FILE = config['sound_file']  # 再生したい音声ファイルのパス
 VOICEPEAK_PATH=config['voicepeak_path']  # Voicepeakの実行ファイルのパス
+narrators=[]
+
+try:
+    result = subprocess.run([VOICEPEAK_PATH, "--list-narrator"], check=True, stdout=subprocess.PIPE, text=True)
+    narrators=result.stdout.strip().splitlines()
+except subprocess.CalledProcessError as e:
+    print(f"話者取得に失敗しました: {e}")
+    raise
+
+print(narrators)
+
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -21,7 +32,21 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 voice_queue = collections.defaultdict(asyncio.Queue)
 playing_flags = collections.defaultdict(lambda: False)  # 再生中フラグ
 
-@bot.command()
+@bot.event
+async def on_ready():
+    await bot.tree.sync()
+    print(f"Logged in as {bot.user}")
+
+@bot.hybrid_group(name="config", description="設定関連のコマンド")
+async def config(ctx):
+    """設定関連のコマンド"""
+    if ctx.invoked_subcommand is None:
+        await ctx.send("設定コマンドを実行するには、サブコマンドを指定してください。")
+
+# @config.command(name="narrator", description="ナレーターを設定")
+# @config.command(name="emotion", description="感情を設定")
+
+@bot.hybrid_command(name="join", description="ボイスチャンネルに参加")
 async def join(ctx):
     """ボイスチャンネルに参加"""
     if ctx.author.voice:
@@ -53,9 +78,11 @@ async def play_next(guild):
                     tmp_path=tmp.name
             await asyncio.to_thread(
                 synthesize_voicepeak,
-                text,
+                VOICEPEAK_PATH,
                 tmp_path,
-                VOICEPEAK_PATH
+                text,
+                "",
+                ""
             )
             source = discord.FFmpegPCMAudio(tmp_path)
 
@@ -97,7 +124,7 @@ async def on_message(message):
         if not playing_flags[message.guild.id]:
             await play_next(message.guild)
 
-@bot.command()
+@bot.hybrid_command(name="leave", description="ボイスチャンネルから退出")
 async def leave(ctx):
     """ボイスチャンネルから退出"""
     if ctx.voice_client:
@@ -105,5 +132,9 @@ async def leave(ctx):
         await ctx.send("ボイスチャンネルから退出しました。")
     else:
         await ctx.send("ボイスチャンネルに参加していません。")
+
+@bot.hybrid_command(name="test", description="Hybrid command example")
+async def test(ctx):
+    await ctx.send("This is a hybrid command!")
 
 bot.run(TOKEN)
