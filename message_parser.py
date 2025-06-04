@@ -2,6 +2,7 @@ import logging
 import re
 import requests
 import emoji
+import unicodedata
 from bs4 import BeautifulSoup
 
 def get_url_title(url):
@@ -27,7 +28,7 @@ def replace_emoji(text):
     # カスタム絵文字の置換
     text = re.sub(r'<a?:([a-zA-Z0-9_]+):\d+>', r':\1:', text)
     # 通常の絵文字の置換
-    text = emoji.demojize(text)
+    text = emoji.demojize(text, language='ja')
     return text
 
 def parse_message(text):
@@ -35,7 +36,9 @@ def parse_message(text):
     text = replace_url(text)
     # 絵文字の置換
     text = replace_emoji(text)
+    # 全角文字を半角に変換
+    text=unicodedata.normalize("NFKC", text)
+
     if len(text) > 135:
         text = text[:135] + "、以下略。"
-
     return text
