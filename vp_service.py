@@ -1,11 +1,10 @@
 import os
 import asyncio
-import json
 import tempfile
 import collections
 import discord
-from json_loader import VOICEPEAK_PATH, server_settings, server_default, user_settings, user_default, save_json
 from vp_wrapper import synthesize_vp
+from config import VOICEPEAK_PATH, server_settings, user_settings, user_default
 
 voice_queue = collections.defaultdict(asyncio.Queue)
 playing_flags = collections.defaultdict(lambda: False)  # 再生中フラグ

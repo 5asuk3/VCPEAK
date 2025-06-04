@@ -1,23 +1,10 @@
 
-import os
-import json
 import asyncio
 import discord
-from discord.ext import commands    
-from vp_service import *
+from discord.ext import commands
+from vp_service import vp_play
 from json_loader import *
-import subprocess
-
-try:
-    result = subprocess.run([VOICEPEAK_PATH, "--list-narrator"], check=True, stdout=subprocess.PIPE, text=True)
-    narrators=result.stdout.strip().splitlines()
-except subprocess.CalledProcessError as e:
-    print(f"話者取得に失敗しました: {e}")
-    raise
-
-print(narrators)
-print(server_settings)
-print(user_settings)
+from config import VOICEPEAK_PATH, PREFIX, TOKEN
 
 base_embed = discord.Embed(
     title="VCPeak",
@@ -29,7 +16,7 @@ base_embed.set_footer(text="VCPeak Bot")
 
 intents = discord.Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix=config['prefix'], intents=intents)
+bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
 @bot.event
 async def on_ready():
@@ -44,7 +31,7 @@ async def on_guild_join(guild):
         save_json("servers.json", server_settings)
     
 
-@bot.hybrid_group(name="config", description="設定関連のコマンド")
+@bot.hybrid_group(name="server-config", description="設定関連のコマンド")
 async def config(ctx):
     """設定関連のコマンド"""
     if ctx.invoked_subcommand is None:
@@ -55,6 +42,24 @@ async def config(ctx):
 
 # @config.command(name="narrator", description="ナレーターを設定")
 # @config.command(name="emotion", description="感情を設定")
+
+@bot.hybrid_command(name="get_narrator", description="ナレーターの一覧を取得")
+async def get_narrator(ctx):
+    """ナレーターの一覧を取得"""
+    embed = discord.Embed(title="ナレーター一覧", description="\n".join(narrators), color=discord.Color.green())
+    await ctx.send(embed=embed)
+
+@bot.hybrid_command(name="get_emotion", description="感情の一覧を取得")
+async def get_emotion(ctx, narator: str=None):
+    """感情の一覧を取得"""
+    if narator is None:
+        await ctx.send("ナレーターを指定してください。")
+        return
+    
+    if narator not in narrators:
+        await ctx.send(f"ナレーター「{narator}」は存在しません。")
+        return
+
 
 @bot.hybrid_command(name="join", description="ボイスチャンネルに参加")
 async def join(ctx):
