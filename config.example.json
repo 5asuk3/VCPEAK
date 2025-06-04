@@ -1,0 +1,18 @@
+{
+    "config":{
+        "discord_token":"DISCORD TOKEN HERE",
+        "voicepeak_path":"VOICEPEAK PATH HERE",
+        "prefix":"!"
+    },
+    
+    "server_default":{
+        "volume":50
+    },
+
+    "user_default":{
+        "narrator":"",
+        "emotion": "",
+        "speed":100,
+        "pitch":100
+    }
+}
