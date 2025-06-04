@@ -1,4 +1,5 @@
 from json_loader import load_json
+import sys
 import subprocess
 
 # 設定の読み込み
@@ -30,7 +31,14 @@ for narrator in narrators:
     except subprocess.CalledProcessError as e:
         print(f"感情の取得に失敗しました: {e}")
 
+print("設定の読み込みが完了しました。")
+print(f"コマンドプレフィックス: {PREFIX}")
+print(f"VOICEPEAKのパス: {VOICEPEAK_PATH}")
+
+print("利用可能なキャラクター:")
 for narrator in narrators:
-    print(f"ナレーター: {narrator}, 感情: {emotions[narrator]}")
-print(server_settings)
-print(user_settings)
+    print(f"\tナレーター: {narrator}\t感情: {", ".join(f"{emotion}" for emotion in emotions[narrator])}")
+print("サーバーのデフォルト設定:")
+print(f"\t", ", ".join(f"{key}={value}" for key, value in server_default.items()))
+print("ユーザーのデフォルト設定:")
+print(f"\t", ", ".join(f"{key}={value}" for key, value in user_default.items()))

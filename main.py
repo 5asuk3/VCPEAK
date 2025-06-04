@@ -5,7 +5,7 @@ from discord.ext import commands
 from vp_service import vp_play
 from json_loader import *
 from config import *
-from message_parser import *
+from message_parser import parse_message
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -193,7 +193,7 @@ async def on_message(message):
     # ボイスチャンネルに接続している場合のみ読み上げ
     voice_client = message.guild.voice_client
     if voice_client:
-        parsed_message=replace_url(message.content)
+        parsed_message=parse_message(message.content)
         await vp_play(bot, parsed_message, message.guild, message.author)
 
 # Utility Commands
