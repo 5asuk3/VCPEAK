@@ -1,0 +1,1 @@
+VOICEPEAKを用いたDiscord用のテキスト読み上げソフト
