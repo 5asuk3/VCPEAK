@@ -30,6 +30,11 @@ for narrator in narrators:
         emotions[narrator] = result.stdout.strip().splitlines()
     except subprocess.CalledProcessError as e:
         print(f"感情の取得に失敗しました: {e}")
+        raise
+
+if user_default['narrator']!="" and user_default['narrator'] not in narrators:
+    print(f"ユーザーのデフォルトナレーター '{user_default['narrator']}' が利用可能なキャラクターの中に含まれていません。")
+    exit(1)
 
 print("設定の読み込みが完了しました。")
 print(f"コマンドプレフィックス: {PREFIX}")

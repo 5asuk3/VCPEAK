@@ -1,6 +1,7 @@
 import os
 import sys
 import discord
+from discord import app_commands
 from discord.ext import commands
 from vp_service import vp_play
 from json_loader import *
@@ -18,6 +19,11 @@ embed_default = discord.Embed(
     color=discord.Color.blue()
 )
 embed_default.set_footer(text="VCPeak Bot")
+
+async def narrator_autocomplete(interaction, current: str):
+    """キャラクターのオートコンプリート"""
+    return [app_commands.Choice(name=narrator, value=narrator) for narrator in narrators if current.lower() in narrator.lower()]
+
 
 @bot.event
 async def on_ready():
@@ -58,7 +64,7 @@ async def show_server_config(ctx):
     await ctx.send(embed=embed) 
 
 @server_config.command(name="volume", description="ボイスチャンネルの音量を設定")
-async def set_volume(ctx, volume: int=100):
+async def set_volume(ctx, volume: int=server_default['volume']):
     """ボイスチャンネルの音量を設定"""
     if volume < 0 or volume > 200:
         await ctx.send("音量は0から200の範囲で設定してください。")
@@ -82,6 +88,7 @@ async def user_config(ctx):
 @user_config.command(name="show", description="ユーザー設定を表示")
 async def show_user_config(ctx):
     """ユーザー設定を表示"""
+    #TODO不正な値のものがあったらデフォルト値に戻す
     settings = user_settings[str(ctx.author.id)]
     embed = discord.Embed(title=f"{ctx.author.name}の設定", color=discord.Color.blue())
     for key, value in settings.items():
@@ -90,7 +97,8 @@ async def show_user_config(ctx):
     await ctx.send(embed=embed)
     
 @user_config.command(name="narrator", description="キャラクターを設定")
-async def set_narrator(ctx, narrator: str=""):
+@app_commands.autocomplete(narrator=narrator_autocomplete)
+async def set_narrator(ctx, narrator: str=user_default['narrator']):
     """キャラクターを設定"""
     if narrator not in narrators:
         await ctx.send(f"引数がない、もしくは無効なキャラクターです。\n利用可能なキャラクター: {', '.join(narrators)}")
@@ -103,12 +111,13 @@ async def set_narrator(ctx, narrator: str=""):
     await ctx.send(f"キャラクターを「{narrator}」に設定しました。")
 
 @user_config.command(name="emotion", description="感情を設定")
-async def set_emotion(ctx, emotion: str=""):
+async def set_emotion(ctx, emotion: str=user_default['emotion']):
     """感情を設定"""
+    #TODO不正な値のものがあったらデフォルト値に戻す
     await ctx.send("まだ未対応だよ～ん")
 
 @user_config.command(name="speed", description="音声の速度を設定")
-async def set_speed(ctx, speed: int=100):
+async def set_speed(ctx, speed: int=user_default['speed']):
     if speed < 50 or speed > 200:
         await ctx.send("速度は50から200の範囲で設定してください。")
         return
@@ -118,7 +127,7 @@ async def set_speed(ctx, speed: int=100):
     await ctx.send(f"音声の速度を{speed}%に設定しました。")
 
 @user_config.command(name="pitch", description="音声のピッチを設定")
-async def set_pitch(ctx, pitch: int=100):
+async def set_pitch(ctx, pitch: int=user_default['pitch']):
     if pitch < -300 or pitch > 300:
         await ctx.send("ピッチは-300から300の範囲で設定してください。")
         return

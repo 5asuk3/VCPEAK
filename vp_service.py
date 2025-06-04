@@ -4,7 +4,7 @@ import tempfile
 import collections
 import discord
 from vp_wrapper import synthesize_vp
-from config import VOICEPEAK_PATH, server_settings, user_settings, user_default
+from config import VOICEPEAK_PATH, server_settings, user_settings, user_default, narrators
 
 voice_queue = collections.defaultdict(asyncio.Queue)
 playing_flags = collections.defaultdict(lambda: False)  # 再生中フラグ
@@ -26,6 +26,8 @@ async def vp_play_next(bot, guild):
             contents=await queue.get()
             text, user_id=contents
             user_set=user_settings.get(str(user_id), user_default.copy())
+            if user_set['narator'] !=user_default['narator'] and user_set['narator'] not in narrators:
+                user_set['narrator'] = user_default['narator']
 
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
                 tmp_path=tmp.name
