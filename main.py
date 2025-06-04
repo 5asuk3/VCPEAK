@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from vp_service import vp_play
 from json_loader import *
-from config import VOICEPEAK_PATH, PREFIX, TOKEN
+from config import *
 
 base_embed = discord.Embed(
     title="VCPeak",
