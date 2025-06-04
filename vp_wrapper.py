@@ -12,7 +12,7 @@ def synthesize_vp(voicepeak_path: str, text: str, output_path: str, narrator: st
     ]
 
     try:
-        result = subprocess.run(cmd, check=True)
+        result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE)
         return result.stdout
     except subprocess.CalledProcessError as e:
         print(f"Voicepeak音声合成に失敗しました: {e}")
