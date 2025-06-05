@@ -1,0 +1,13 @@
+{
+    "0000000000000000000": {
+        "narrator": "Example Narrator",
+        "emotion": {
+            "happy": 0,
+            "fun": 0,
+            "sad": 0,
+            "angry": 0
+        },
+        "speed": 100,
+        "pitch": 100
+    }
+}

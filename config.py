@@ -8,7 +8,7 @@ def update_dict_pattern():
     print(dict_pattern[0].pattern)  # 正規表現パターンを表示
 
 # 設定の読み込み
-data = load_json("config.json")
+data = load_json("../config.json")
 config=data['config']
 TOKEN= config['discord_token']  # config.jsonからトークンを取得
 VOICEPEAK_PATH=config['voicepeak_path']  # Voicepeakの実行ファイルのパス
