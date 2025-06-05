@@ -40,9 +40,14 @@ for narrator in NARRATORS:
         print(f"感情の取得に失敗しました: {e}")
         raise
 
-if USER_DEFAULT['narrator']!="" and USER_DEFAULT['narrator'] not in NARRATORS:
+if USER_DEFAULT['narrator'] and USER_DEFAULT['narrator'] not in NARRATORS:
     print(f"ユーザーのデフォルトナレーター '{USER_DEFAULT['narrator']}' が利用可能なキャラクターの中に含まれていません。")
     exit(1)
+if USER_DEFAULT['emotion']:
+    for emotion_name in USER_DEFAULT['emotion']:
+        if emotion_name not in EMOTIONS.get(USER_DEFAULT['narrator'], []):
+            print(f"ユーザーのデフォルト感情 '{emotion_name}' がナレーター '{USER_DEFAULT['narrator']}' の利用可能な感情の中に含まれていません。")
+            exit(1)
 
 print("設定の読み込みが完了しました。")
 print(f"コマンドプレフィックス: {PREFIX}")

@@ -4,7 +4,7 @@ import tempfile
 import collections
 import discord
 from vp_wrapper import synthesize_vp
-from config import VOICEPEAK_PATH, server_settings, user_settings, USER_DEFAULT, NARRATORS
+from config import VOICEPEAK_PATH, server_settings, user_settings, USER_DEFAULT, NARRATORS, EMOTIONS
 
 voice_queue = collections.defaultdict(asyncio.Queue)
 playing_flags = collections.defaultdict(lambda: False)  # 再生中フラグ
@@ -28,6 +28,8 @@ async def vp_play_next(bot, guild):
             user_set=user_settings.get(str(user_id), USER_DEFAULT.copy())
             if user_set['narrator'] !=USER_DEFAULT['narrator'] and user_set['narrator'] not in NARRATORS:
                 user_set['narrator'] = USER_DEFAULT['narrator']
+                user_set["emotion"]={emotion_name: 0 for emotion_name in EMOTIONS[user_set['narrator']]}
+            parsed_emotion = ", ".join(f"{emotion_name}={value}" for emotion_name, value in user_set['emotion'].items())
 
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
                 tmp_path=tmp.name
@@ -38,7 +40,7 @@ async def vp_play_next(bot, guild):
                 text,
                 tmp_path,
                 user_set['narrator'],
-                user_set['emotion'],
+                parsed_emotion,
                 user_set['speed'],
                 user_set['pitch']                
             )
