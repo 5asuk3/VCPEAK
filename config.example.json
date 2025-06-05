@@ -11,7 +11,7 @@
 
     "user_default":{
         "narrator":"",
-        "emotion": "",
+        "emotion":{},
         "speed":100,
         "pitch":100
     }
