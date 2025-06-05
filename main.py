@@ -4,8 +4,9 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from vp_service import vp_play
-from json_loader import *
-from config import *
+from json_loader import save_json
+from config import TOKEN, PREFIX, USER_DEFAULT, SERVER_DEFAULT, NARRATORS, EMOTIONS, user_settings, server_settings, dict
+from config import update_dict_pattern
 from message_parser import parse_message
 
 intents = discord.Intents.default()
@@ -20,10 +21,23 @@ embed_default = discord.Embed(
 )
 embed_default.set_footer(text="VCPeak Bot")
 
+def ensure_user_settings(user_id):
+    if user_id not in user_settings:
+        user_settings[user_id] = USER_DEFAULT.copy()
+        save_json("users.json", user_settings)
+
+def ensure_server_settings(server_id):
+    if server_id not in server_settings:
+        server_settings[server_id] = SERVER_DEFAULT.copy()
+        save_json("servers.json", server_settings)
+
 async def narrator_autocomplete(interaction, current: str):
     """キャラクターのオートコンプリート"""
-    return [app_commands.Choice(name=narrator, value=narrator) for narrator in narrators if current.lower() in narrator.lower()]
+    return [app_commands.Choice(name=narrator, value=narrator) for narrator in NARRATORS if current.lower() in narrator.lower()]
 
+async def dict_autocomplete(interaction, current: str):
+    """辞書のオートコンプリート"""
+    return [app_commands.Choice(name=word, value=word) for word in dict if current.lower() in word.lower()]
 
 @bot.event
 async def on_ready():
@@ -37,7 +51,7 @@ async def on_ready():
 async def on_guild_join(guild):
     print(f"Botがサーバー「{guild.name}」({guild.id}) に参加しました。")
     if str(guild.id) not in server_settings:
-        server_settings[str(guild.id)] = server_default.copy()
+        server_settings[str(guild.id)] = SERVER_DEFAULT.copy()
         save_json("servers.json", server_settings)
 
 
@@ -45,17 +59,14 @@ async def on_guild_join(guild):
 # Config Commands
 @bot.hybrid_group(name="server-config", description="設定関連のコマンド")
 async def server_config(ctx):
-    server_id = str(ctx.guild.id)
-    if server_id not in server_settings:
-        server_settings[server_id] = server_default.copy()
-
     if ctx.invoked_subcommand is None:
-        await ctx.send("設定コマンドを実行するには、サブコマンドを指定してください。")
+        await show_server_config(ctx)
 
 @server_config.command(name="show", description="サーバー設定を表示")
 async def show_server_config(ctx):
     """サーバー設定を表示"""
     server_id = str(ctx.guild.id)
+    ensure_server_settings(server_id)
     settings = server_settings[server_id]
     embed = discord.Embed(title=f"{ctx.guild.name}の設定", color=discord.Color.blue())
     for key, value in settings.items():
@@ -64,32 +75,32 @@ async def show_server_config(ctx):
     await ctx.send(embed=embed) 
 
 @server_config.command(name="volume", description="ボイスチャンネルの音量を設定")
-async def set_volume(ctx, volume: int=server_default['volume']):
+async def set_volume(ctx, volume: int=SERVER_DEFAULT['volume']):
     """ボイスチャンネルの音量を設定"""
     if volume < 0 or volume > 200:
         await ctx.send("音量は0から200の範囲で設定してください。")
         return
     
-    server_settings[str(ctx.guild.id)]["volume"] = volume
+    server_id=str(ctx.guild.id)
+    ensure_server_settings(server_id)
+    server_settings[server_id]["volume"] = volume
     save_json("servers.json", server_settings)
     
     await ctx.send(f"ボイスチャンネルの音量を{volume}%に設定しました。")
 
 @bot.hybrid_group(name="config", description="ユーザー設定")
 async def user_config(ctx):
-    user_id = str(ctx.author.id)
-    if str(user_id) not in user_settings:
-        user_settings[user_id] = user_default.copy()
-        save_json("users.json", user_settings)
-
     if ctx.invoked_subcommand is None:
         await ctx.send("ユーザー設定コマンドを実行するには、サブコマンドを指定してください。")
+        await show_user_config(ctx)
 
 @user_config.command(name="show", description="ユーザー設定を表示")
 async def show_user_config(ctx):
     """ユーザー設定を表示"""
     #TODO不正な値のものがあったらデフォルト値に戻す
-    settings = user_settings[str(ctx.author.id)]
+    user_id = str(ctx.author.id)
+    ensure_user_settings(user_id)
+    settings = user_settings[user_id]
     embed = discord.Embed(title=f"{ctx.author.name}の設定", color=discord.Color.blue())
     for key, value in settings.items():
         embed.add_field(name=key, value=str(value), inline=False)
@@ -98,41 +109,49 @@ async def show_user_config(ctx):
     
 @user_config.command(name="narrator", description="キャラクターを設定")
 @app_commands.autocomplete(narrator=narrator_autocomplete)
-async def set_narrator(ctx, narrator: str=user_default['narrator']):
+async def set_narrator(ctx, narrator: str=USER_DEFAULT['narrator']):
     """キャラクターを設定"""
-    if narrator not in narrators:
-        await ctx.send(f"引数がない、もしくは無効なキャラクターです。\n利用可能なキャラクター: {', '.join(narrators)}")
+    if narrator not in NARRATORS:
+        await ctx.send(f"引数がない、もしくは無効なキャラクターです。\n利用可能なキャラクター: {', '.join(NARRATORS)}")
         return
     user_id = str(ctx.author.id)
+    ensure_user_settings(user_id)
     user_settings[user_id]["narrator"] = narrator
-    value=", ".join(f"{emotion}=0" for emotion in emotions[narrator])
+    value=", ".join(f"{emotion}=0" for emotion in EMOTIONS[narrator])
     user_settings[user_id]["emotion"]=value
+    #TODOキャラクターを変える際にemotion内の辞書を初期化する(その前に辞書で保存するように要構造変更)
     save_json("users.json", user_settings)
     await ctx.send(f"キャラクターを「{narrator}」に設定しました。")
 
 @user_config.command(name="emotion", description="感情を設定")
-async def set_emotion(ctx, emotion: str=user_default['emotion']):
+async def set_emotion(ctx, emotion: str=USER_DEFAULT['emotion']):
     """感情を設定"""
     #TODO不正な値のものがあったらデフォルト値に戻す
+    user_id = str(ctx.author.id)
+    ensure_user_settings(user_id)
     await ctx.send("まだ未対応だよ～ん")
 
 @user_config.command(name="speed", description="音声の速度を設定")
-async def set_speed(ctx, speed: int=user_default['speed']):
+async def set_speed(ctx, speed: int=USER_DEFAULT['speed']):
     if speed < 50 or speed > 200:
         await ctx.send("速度は50から200の範囲で設定してください。")
         return
     
-    user_settings[str(ctx.author.id)]["speed"] = speed
+    user_id = str(ctx.author.id)
+    ensure_user_settings(user_id)
+    user_settings[user_id]["speed"] = speed
     save_json("users.json", user_settings)
     await ctx.send(f"音声の速度を{speed}%に設定しました。")
 
 @user_config.command(name="pitch", description="音声のピッチを設定")
-async def set_pitch(ctx, pitch: int=user_default['pitch']):
+async def set_pitch(ctx, pitch: int=USER_DEFAULT['pitch']):
     if pitch < -300 or pitch > 300:
         await ctx.send("ピッチは-300から300の範囲で設定してください。")
         return
     
-    user_settings[str(ctx.author.id)]["pitch"] = pitch
+    user_id = str(ctx.author.id)
+    ensure_user_settings(user_id)
+    user_settings[user_id]["pitch"] = pitch
     save_json("users.json", user_settings)
     await ctx.send(f"音声のピッチを{pitch}%に設定しました。")
 
@@ -141,10 +160,50 @@ async def set_pitch(ctx, pitch: int=user_default['pitch']):
 async def get_narrator(ctx):
     """キャラクター一覧の表示"""
     embed = discord.Embed(title="キャラクター一覧", color=discord.Color.green())
-    for narrator in narrators:
-        emotion=", ".join(emotions[narrator])
+    for narrator in NARRATORS:
+        emotion=", ".join(EMOTIONS[narrator])
         embed.add_field(name=narrator, value=emotion, inline=False)
     await ctx.send(embed=embed)
+
+# Dictionary Commands
+@bot.hybrid_group(name="dict")
+async def dict_config(ctx):
+    if ctx.invoked_subcommand is None:
+        await show_dict(ctx)
+
+@dict_config.command(name="show", description="辞書の内容を表示")
+async def show_dict(ctx):
+    """辞書の内容を表示"""
+    embed = discord.Embed(title="辞書の内容", color=discord.Color.blue())
+    for key, value in dict.items():
+        embed.add_field(name=key, value=value, inline=False)
+    
+    await ctx.send(embed=embed)
+
+@dict_config.command(name="add", description="辞書に単語を追加")
+async def add_word(ctx, from_word: str, to_word: str):
+    """辞書に単語を追加"""
+    if from_word in dict:
+        await ctx.send(f"単語「{from_word}」はすでに存在します。")
+        return
+    
+    dict[from_word] = to_word
+    save_json("dict.json", dict)
+    update_dict_pattern()  # 辞書パターンを更新
+    await ctx.send(f"単語「{from_word}」を辞書に追加しました。読み: {to_word}")
+
+@dict_config.command(name="delete", description="辞書から単語を削除")
+@app_commands.autocomplete(word=dict_autocomplete)
+async def delete_word(ctx, word: str):
+    """辞書から単語を削除"""
+    if word not in dict:
+        await ctx.send(f"単語「{word}」は辞書に存在しません。")
+        return
+    
+    del dict[word]
+    save_json("dict.json", dict)
+    update_dict_pattern()  # 辞書パターンを更新
+    await ctx.send(f"単語「{word}」を辞書から削除しました。")
 
 # Voice Channel Commands
 @bot.hybrid_command(name="connect", description="ボイスチャンネルに参加")
@@ -213,7 +272,7 @@ async def on_message(message):
         if message.attachments:
             text.append(f"添付ファイルが送信されました")
 
-        # スタンプと本文をスペース区切りで結合・整形
+        # スタンプと本文を結合・整形
         parsed_message=parse_message("、".join(text))
         await vp_play(bot, parsed_message, message.guild, message.author)
 
@@ -227,6 +286,7 @@ async def help_command(ctx):
     embed.add_field(name="/get-voice", value="話者一覧の取得", inline=False)
     embed.add_field(name="/config", value="ユーザー設定関連のコマンド", inline=False)
     embed.add_field(name="/server-config", value="サーバー設定関連のコマンド", inline=False)
+    embed.add_field(name="/dict", value="辞書関連のコマンド", inline=False)
     embed.add_field(name="/restart", value="ボットの再起動(要注意！)", inline=False)
     embed.set_footer(text="https://github.com/5asuk3/VCPEAK-Bot")
     await ctx.send(embed=embed)
@@ -238,7 +298,7 @@ async def restart(ctx):
         channel=guild.get_channel(channel_id)
         if channel is not None:
             try:
-                await channel.send("ボットを再起動します。\n再起動後、必要に応じて/joinコマンドを使用して再接続させてください。")
+                await channel.send("ボットを再起動します。\n再起動後、必要に応じて/connectコマンドを使用して再接続させてください。")
             except Exception as e:
                 print(f"メッセージ送信エラー: {e}") 
     await bot.close()  # Discordとの接続を閉じる

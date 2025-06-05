@@ -4,6 +4,7 @@ import requests
 import emoji
 import unicodedata
 from bs4 import BeautifulSoup
+from config import dict, dict_pattern
 
 def get_url_title(url):
     try:
@@ -31,13 +32,26 @@ def replace_emoji(text):
     text = emoji.demojize(text, language='ja')
     return text
 
+def replace_word(text):
+    # 辞書に基づいて単語を置換
+    def repl(match):
+        key= match.group(0)
+        print(f"置換: {key} -> {dict.get(key, key)}")
+        return dict.get(key, key)
+    text = dict_pattern[0].sub(repl, text)
+
+    # 半角文字を全角に変換(正規化)
+    text = unicodedata.normalize('NFKC', text)
+    return text
+
+
 def parse_message(text):
     # URLの置換
     text = replace_url(text)
     # 絵文字の置換
     text = replace_emoji(text)
-    # 全角文字を半角に変換
-    text = unicodedata.normalize('NFKC', text)
+
+    text = replace_word(text)
 
     if len(text) > 135:
         text = text[:135] + "、以下略。"
