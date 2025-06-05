@@ -202,7 +202,19 @@ async def on_message(message):
     # ボイスチャンネルに接続している場合のみ読み上げ
     voice_client = message.guild.voice_client
     if voice_client:
-        parsed_message=parse_message(message.content)
+        text = []
+        # 本文があれば追加
+        if message.content.strip():
+            text.append(message.content)
+        # スタンプがあれば追加
+        if message.stickers:
+            text.append(f"{message.stickers[0].name}のスタンプ")
+        # 添付ファイルがあれば追加
+        if message.attachments:
+            text.append(f"添付ファイルが送信されました")
+
+        # スタンプと本文をスペース区切りで結合・整形
+        parsed_message=parse_message("、".join(text))
         await vp_play(bot, parsed_message, message.guild, message.author)
 
 # Utility Commands

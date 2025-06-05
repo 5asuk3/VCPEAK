@@ -26,8 +26,8 @@ async def vp_play_next(bot, guild):
             contents=await queue.get()
             text, user_id=contents
             user_set=user_settings.get(str(user_id), user_default.copy())
-            if user_set['narator'] !=user_default['narator'] and user_set['narator'] not in narrators:
-                user_set['narrator'] = user_default['narator']
+            if user_set['narrator'] !=user_default['narrator'] and user_set['narrator'] not in narrators:
+                user_set['narrator'] = user_default['narrator']
 
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
                 tmp_path=tmp.name

@@ -37,7 +37,7 @@ def parse_message(text):
     # 絵文字の置換
     text = replace_emoji(text)
     # 全角文字を半角に変換
-    text=unicodedata.normalize("NFKC", text)
+    text = unicodedata.normalize('NFKC', text)
 
     if len(text) > 135:
         text = text[:135] + "、以下略。"
