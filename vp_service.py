@@ -29,7 +29,7 @@ async def vp_play_next(bot, guild):
             if user_set['narrator'] !=USER_DEFAULT['narrator'] and user_set['narrator'] not in NARRATORS:
                 user_set['narrator'] = USER_DEFAULT['narrator']
                 user_set["emotion"]={emotion_name: 0 for emotion_name in EMOTIONS[user_set['narrator']]}
-            parsed_emotion = ", ".join(f"{emotion_name}={value}" for emotion_name, value in user_set['emotion'].items())
+            joined_emotion = ", ".join(f"{emotion_name}={value}" for emotion_name, value in user_set['emotion'].items())
 
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
                 tmp_path=tmp.name
@@ -40,7 +40,7 @@ async def vp_play_next(bot, guild):
                 text,
                 tmp_path,
                 user_set['narrator'],
-                parsed_emotion,
+                joined_emotion,
                 user_set['speed'],
                 user_set['pitch']                
             )

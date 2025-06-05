@@ -1,6 +1,6 @@
-from json_loader import load_json
 import re
 import subprocess
+from json_loader import load_json
 
 def update_dict_pattern():
     keys = [k for k in dict if k]  # 空文字列を除外

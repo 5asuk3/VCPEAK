@@ -1,9 +1,9 @@
 import logging
 import re
-import requests
+import discord
 import emoji
 import unicodedata
-import discord
+import requests
 from bs4 import BeautifulSoup
 from config import dict, dict_pattern
 
