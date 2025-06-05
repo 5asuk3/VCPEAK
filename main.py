@@ -1,5 +1,7 @@
 import os
 import sys
+import re
+import random
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -7,10 +9,11 @@ from vp_service import vp_play
 from json_loader import save_json
 from config import TOKEN, PREFIX, USER_DEFAULT, SERVER_DEFAULT, NARRATORS, EMOTIONS, user_settings, server_settings, dict
 from config import update_dict_pattern
-from message_parser import parse_message
+from message_parser import parse_message, pre_parse_message
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
 joined_text_channels={}
@@ -171,6 +174,36 @@ async def set_pitch(ctx, pitch: int=USER_DEFAULT['pitch']):
     save_json("users.json", user_settings)
     await ctx.send(f"音声のピッチを{pitch}%に設定しました。")
 
+@user_config.command(name="randomize", description="キャラクターや感情をランダムに設定")
+async def randomize_user_config(ctx):
+    """キャラクターや感情をランダムに設定"""
+    user_id = str(ctx.author.id)
+    ensure_user_settings(user_id)
+    
+    # ランダムなキャラクターを選択
+    narrator = random.choice(NARRATORS)
+    user_settings[user_id]["narrator"] = narrator
+    
+    # ランダムな感情を選択
+    emotions = EMOTIONS[narrator]
+    user_settings[user_id]["emotion"] = {emotion: random.randint(0, 100) for emotion in emotions}
+    
+    # ランダムな速度とピッチを設定
+    user_settings[user_id]["speed"] = random.randint(50, 200)
+    user_settings[user_id]["pitch"] = random.randint(-300, 300)
+    
+    save_json("users.json", user_settings)
+    await ctx.send(f"各種設定をランダムに設定しました。")
+
+
+@user_config.command(name="reset", description="ユーザー設定をデフォルトにリセット")
+async def reset_user_config(ctx):
+    """ユーザー設定をデフォルトにリセット"""
+    user_id = str(ctx.author.id)
+    user_settings[user_id] = USER_DEFAULT.copy()
+    save_json("users.json", user_settings)
+    await ctx.send("ユーザー設定をデフォルトにリセットしました。")
+
 
 @bot.hybrid_command(name="voice-list", description="キャラクター一覧の表示")
 async def get_narrator(ctx):
@@ -280,16 +313,17 @@ async def on_message(message):
         text = []
         # 本文があれば追加
         if message.content.strip():
-            text.append(message.content)
+            text.append(pre_parse_message(message))
         # スタンプがあれば追加
         if message.stickers:
             text.append(f"{message.stickers[0].name}のスタンプ")
         # 添付ファイルがあれば追加
         if message.attachments:
             text.append(f"添付ファイルが送信されました")
-
         # スタンプと本文を結合・整形
-        parsed_message=parse_message("、".join(text))
+        raw_message = "、".join(text)
+
+        parsed_message=parse_message(raw_message)
         await vp_play(bot, parsed_message, message.guild, message.author)
 
 # Utility Commands
@@ -309,14 +343,17 @@ async def help_command(ctx):
 
 @bot.hybrid_command(name="restart", description="ボットを再起動")
 async def restart(ctx):
+    """ボットを再起動"""
+    msg="ボットを再起動します。\n再起動後、必要に応じて/connectコマンドを使用して再接続させてください。"
     for guild_id, channel_id in joined_text_channels.items():
         guild = bot.get_guild(guild_id)
         channel=guild.get_channel(channel_id)
-        if channel is not None:
+        if channel is not None and guild is not ctx.guild:
             try:
-                await channel.send("ボットを再起動します。\n再起動後、必要に応じて/connectコマンドを使用して再接続させてください。")
+                await channel.send(msg)
             except Exception as e:
                 print(f"メッセージ送信エラー: {e}") 
+    await ctx.send(msg)
     await bot.close()  # Discordとの接続を閉じる
     os.execv(sys.executable, [sys.executable] + sys.argv)  # プロセスを再起動
 

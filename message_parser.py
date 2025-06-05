@@ -3,6 +3,7 @@ import re
 import requests
 import emoji
 import unicodedata
+import discord
 from bs4 import BeautifulSoup
 from config import dict, dict_pattern
 
@@ -36,14 +37,12 @@ def replace_word(text):
     # 辞書に基づいて単語を置換
     def repl(match):
         key= match.group(0)
-        print(f"置換: {key} -> {dict.get(key, key)}")
         return dict.get(key, key)
     text = dict_pattern[0].sub(repl, text)
 
     # 半角文字を全角に変換(正規化)
     text = unicodedata.normalize('NFKC', text)
     return text
-
 
 def parse_message(text):
     # URLの置換
@@ -55,4 +54,40 @@ def parse_message(text):
 
     if len(text) > 135:
         text = text[:135] + "、以下略。"
+    return text
+
+# メンションやリンクを事前に解析
+def pre_parse_message(message : discord.Message):
+    mention_pattern = r'<@!?(\d+)>'
+    channel_link_pattern = r'<#(\d+)>'
+    message_link_pattern = r'https://discord(?:app)?\.com/channels/(\d+)/(\d+)/(\d+)'
+    
+    def repl_men(match):
+        user_id = int(match.group(1))
+        member = message.guild.get_member(user_id)
+        if member:
+            return f"{member.display_name}へのメンション"
+        else:
+            return "不明なユーザーへのメンション"
+
+    def repl_ch(match):
+        channel_id = int(match.group(1))
+        channel = message.guild.get_channel(channel_id)
+        if channel:
+            return f"{channel.name}へのリンク"
+        else:
+            return "不明なチャンネルへのリンク"
+    
+    def repl_msg(match):
+        channel_id = int(match.group(2))
+        channel = message.guild.get_channel(channel_id)
+        if channel:
+            return f"{channel.name}へのリンク"
+        else:
+            return "不明なチャンネルへのリンク"
+    
+    text = message.content
+    text=re.sub(mention_pattern, repl_men, text)
+    text=re.sub(channel_link_pattern, repl_ch, text)
+    text=re.sub(message_link_pattern, repl_msg, text)
     return text
