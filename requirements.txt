@@ -1,0 +1,4 @@
+emoji
+requests
+Beautifulsoup4
+discord.py[voice]
