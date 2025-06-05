@@ -17,11 +17,11 @@ bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
 joined_text_channels={}
 embed_default = discord.Embed(
-    title="VCPEAK-Bot",
-    description="詳細な使い方は https://github.com/5asuk3/VCPEAK-Bot へ",
+    title="VCPEAK",
+    description="詳細な使い方は https://github.com/5asuk3/VCPEAK へ",
     colour=0x4a913c
 )
-embed_default.set_footer(text="VCPEAK-Bot", icon_url="https://avatars.githubusercontent.com/5asuk3")
+embed_default.set_footer(text="VCPEAK", icon_url="https://avatars.githubusercontent.com/5asuk3")
 
 
 def ensure_user_settings(user_id):
@@ -53,7 +53,7 @@ async def dict_autocomplete(interaction, current: str):
 @bot.event
 async def on_ready():
     await bot.tree.sync()
-    embed_default.set_author(name=bot.user.name, url="https://github.com/5asuk3/VCPEAK-Bot", icon_url=bot.user.avatar.url)
+    embed_default.set_author(name=bot.user.name, url="https://github.com/5asuk3/VCPEAK", icon_url=bot.user.avatar.url)
     print(f"Logged in as {bot.user}")
 
 @bot.event
@@ -404,7 +404,7 @@ bot.remove_command("help")  # デフォルトのヘルプコマンドを削除
 @bot.hybrid_command(name="help", description="ヘルプメッセージを表示")
 async def help_command(ctx):
     embed = embed_default.copy()
-    embed.title = "VCPEAK-Bot ヘルプ"
+    embed.title = "VCPEAK ヘルプ"
     embed.add_field(name="/connect", value="ボイスチャンネルへの参加", inline=False)
     embed.add_field(name="/disconnect", value="ボイスチャンネルからの退出", inline=False)
     embed.add_field(name="/voice-list", value="キャラクター一覧の取得", inline=False)
