@@ -5,7 +5,7 @@ import emoji
 import unicodedata
 import requests
 from bs4 import BeautifulSoup
-from config import dict, dict_pattern
+from config import dictionary, dict_pattern
 
 def get_url_title(url):
     try:
@@ -37,7 +37,7 @@ def replace_word(text):
     # 辞書に基づいて単語を置換
     def repl(match):
         key= match.group(0)
-        return dict.get(key, key)
+        return dictionary.get(key, key)
     text = dict_pattern[0].sub(repl, text)
 
     # 半角文字を全角に変換(正規化)

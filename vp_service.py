@@ -26,9 +26,9 @@ async def vp_play_next(bot, guild):
             contents=await queue.get()
             text, user_id=contents
             user_set=user_settings.get(str(user_id), USER_DEFAULT.copy())
-            if user_set['narrator'] !=USER_DEFAULT['narrator'] and user_set['narrator'] not in NARRATORS:
+            if user_set['narrator'] != USER_DEFAULT['narrator'] and user_set['narrator'] not in NARRATORS:
                 user_set['narrator'] = USER_DEFAULT['narrator']
-                user_set["emotion"]={emotion_name: 0 for emotion_name in EMOTIONS[user_set['narrator']]}
+                user_set["emotion"] = {emotion_name: 0 for emotion_name in EMOTIONS[user_set['narrator']]}
             joined_emotion = ", ".join(f"{emotion_name}={value}" for emotion_name, value in user_set['emotion'].items())
 
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:

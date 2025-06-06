@@ -1,9 +1,10 @@
 import re
 import subprocess
+import discord
 from json_loader import load_json
 
 def update_dict_pattern():
-    keys = [k for k in dict if k]  # 空文字列を除外
+    keys = [k for k in dictionary if k]  # 空文字列を除外
     dict_pattern[0] = re.compile("|".join(re.escape(k) for k in sorted(keys, key=len, reverse=True)))
     print(dict_pattern[0].pattern)  # 正規表現パターンを表示
 
@@ -19,10 +20,18 @@ SERVER_DEFAULT=data['server_default']
 
 user_settings = load_json("users.json")
 server_settings = load_json("servers.json")
-dict=load_json("dict.json")
+dictionary=load_json("dict.json")
 dict_pattern = [None]  # 辞書の正規表現パターンを格納するリスト
 update_dict_pattern()
 
+EMBED_DEFAULT = discord.Embed(
+    title="VCPEAK",
+    description="詳細な使い方は https://github.com/5asuk3/VCPEAK へ",
+    colour=0x4a913c
+)
+EMBED_DEFAULT.set_footer(text="VCPEAK", icon_url="https://avatars.githubusercontent.com/5asuk3")
+
+joined_text_channels={} # VC参加中のサーバーとチャンネル管理用の辞書
 
 NARRATORS = []
 EMOTIONS = {}
@@ -42,6 +51,10 @@ for narrator in NARRATORS:
 
 if USER_DEFAULT['narrator'] and USER_DEFAULT['narrator'] not in NARRATORS:
     print(f"ユーザーのデフォルトナレーター '{USER_DEFAULT['narrator']}' が利用可能なキャラクターの中に含まれていません。")
+    exit(1)
+
+if not isinstance(USER_DEFAULT['emotion'], (dict)):
+    print("user_settingsのemotionキーの内容が不正です。辞書型である必要があります。")
     exit(1)
 if USER_DEFAULT['emotion']:
     for emotion_name in USER_DEFAULT['emotion']:
