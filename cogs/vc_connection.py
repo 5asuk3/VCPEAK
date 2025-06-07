@@ -1,5 +1,6 @@
 from discord.ext import commands
 from config import joined_text_channels
+from vp_service import vp_play
 
 class VCConnection(commands.Cog):
     def __init__(self, bot):
@@ -13,8 +14,17 @@ class VCConnection(commands.Cog):
             channel = ctx.author.voice.channel
             # すでにボイスチャンネルに参加している場合
             if ctx.guild.voice_client is not None:
-                await ctx.send("すでにボイスチャンネルに参加しています。")
-                return
+                if ctx.guild.voice_client.channel != channel:
+                    await ctx.guild.voice_client.move_to(channel)
+                    joined_text_channels[ctx.guild.id] = ctx.channel.id
+                    await ctx.send("ボイスチャンネルを移動しました。")
+                    return
+                else:
+                    await ctx.voice_client.disconnect()
+                    await channel.connect()
+                    joined_text_channels[ctx.guild.id] = ctx.channel.id
+                    await ctx.send("すでにボイスチャンネルに参加しているため、再参加します。")
+                    return
             await channel.connect()
             joined_text_channels[ctx.guild.id] = ctx.channel.id
             await ctx.send("ボイスチャンネルに参加しました。")
@@ -34,14 +44,20 @@ class VCConnection(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         bot = self.bot
-        # Bot自身が切断された場合
-        if bot.user and member.id == bot.user.id:
-            # ボイスチャンネルから退出した場合
-            if before.channel is not None and after.channel is None:
-                joined_text_channels.pop(member.guild.id, None)
-            # チャンネル移動の場合
-            elif before.channel != after.channel and after.channel is not None:
-                joined_text_channels[member.guild.id] = after.channel.id
+        voice_client = member.guild.voice_client
+        if not (before.channel == voice_client.channel or after.channel == voice_client.channel):
+            return
+        if after.channel != before.channel and member.id != bot.user.id:
+            text_channel=bot.get_channel(joined_text_channels.get(member.guild.id))
+            if before.channel is None and after.channel is not None:
+                await text_channel.send(f"{member.display_name}({member.name})がボイスチャンネルに参加しました。")
+            elif before.channel is not None and after.channel is None:
+                await text_channel.send(f"{member.display_name}({member.name})がボイスチャンネルから退出しました。")
+            elif before.channel is not None and after.channel is not None:
+                if before.channel.id == voice_client.channel.id:
+                    await text_channel.send(f"{member.display_name}({member.name})がボイスチャンネルを移動しました。")
+                elif after.channel.id == voice_client.channel.id:
+                    await text_channel.send(f"{member.display_name}({member.name})がボイスチャンネルに参加しました。")
 
 async def setup(bot):
     await bot.add_cog(VCConnection(bot))
