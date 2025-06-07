@@ -4,7 +4,7 @@ import tempfile
 import collections
 import discord
 from vp_wrapper import synthesize_vp
-from config import VOICEPEAK_PATH, server_settings, user_settings, USER_DEFAULT, NARRATORS, EMOTIONS
+from config import VOICEPEAK_PATH, server_settings, user_settings, USER_DEFAULT, NARRATORS, EMOTIONS, joined_text_channels, EMBED_DEFAULT
 
 voice_queue = collections.defaultdict(asyncio.Queue)
 playing_flags = collections.defaultdict(lambda: False)  # 再生中フラグ
@@ -34,16 +34,24 @@ async def vp_play_next(bot, guild):
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
                 tmp_path=tmp.name
 
-            await asyncio.to_thread(
-                synthesize_vp,
-                VOICEPEAK_PATH,
-                text,
-                tmp_path,
-                user_set['narrator'],
-                joined_emotion,
-                user_set['speed'],
-                user_set['pitch']                
-            )
+            result = await asyncio.to_thread(
+                    synthesize_vp,
+                    VOICEPEAK_PATH,
+                    text,
+                    tmp_path,
+                    user_set['narrator'],
+                    joined_emotion,
+                    user_set['speed'],
+                    user_set['pitch']
+                )
+            if result != 0:
+                channel = guild.get_channel(joined_text_channels[guild.id])
+                embed = EMBED_DEFAULT.copy()
+                embed.title = "音声合成エラー"
+                embed.description = f"音声合成に失敗しました。エラーコード: {result}"
+                embed.add_field(name="内容", value=text, inline=False)
+                await channel.send(embed=embed)
+                continue
 
             source = discord.FFmpegPCMAudio(tmp_path)
             vol=server_settings[str(guild.id)].get('volume')/100
