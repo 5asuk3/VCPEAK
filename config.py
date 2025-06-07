@@ -1,11 +1,12 @@
 import re
 import subprocess
+from typing import Optional, Pattern
 import discord
 from json_loader import load_json
 
 def update_dict_pattern():
     keys = [k for k in dictionary if k]  # 空文字列を除外
-    dict_pattern[0] = re.compile("|".join(re.escape(k) for k in sorted(keys, key=len, reverse=True)))
+    dict_pattern[0] = re.compile("|".join(re.escape(k) for k in sorted(keys, key=len, reverse=True))) 
 
 # 設定の読み込み
 data = load_json("../config.json")
@@ -20,7 +21,7 @@ SERVER_DEFAULT=data['server_default']
 user_settings = load_json("users.json")
 server_settings = load_json("servers.json")
 dictionary=load_json("dict.json")
-dict_pattern =[]  # 辞書の正規表現パターンを格納するリスト（リストとして定義）
+dict_pattern: list[Optional[Pattern[str]]] = [None] # 辞書の正規表現パターンを格納するリスト（リストとして定義）
 update_dict_pattern()
 
 EMBED_DEFAULT = discord.Embed(

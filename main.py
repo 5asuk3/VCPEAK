@@ -1,7 +1,4 @@
-import os
-import sys
 import discord
-from discord import app_commands
 from discord.ext import commands
 from config import TOKEN, PREFIX, USER_DEFAULT, SERVER_DEFAULT, NARRATORS, EMOTIONS, EMBED_DEFAULT, server_settings, joined_text_channels
 from json_loader import save_json
@@ -24,9 +21,8 @@ bot.setup_hook = setup_hook
 @bot.event
 async def on_ready():
     await bot.tree.sync()
-    if bot.user:
-        EMBED_DEFAULT.set_author(name=bot.user.name, url="https://github.com/5asuk3/VCPEAK", icon_url=bot.user.display_avatar.url)
     print(f"Logged in as {bot.user}")
+    EMBED_DEFAULT.set_author(name=bot.user.name, url="https://github.com/5asuk3/VCPEAK", icon_url=bot.user.display_avatar.url) if bot.user else None
 
     print("利用可能なキャラクター:")
     for narrator in NARRATORS:
@@ -106,7 +102,7 @@ async def on_message(message):
         await bot.process_commands(message)
         return
     
-    # Bot自身のメッセージは無視
+    # BotのメッセージとVCに参加していない場合は無視
     if (message.author.bot 
         or message.guild.id not in joined_text_channels
         or message.channel.id != joined_text_channels[message.guild.id]
@@ -116,20 +112,7 @@ async def on_message(message):
     # ボイスチャンネルに接続している場合のみ読み上げ
     voice_client = message.guild.voice_client
     if voice_client:
-        text = []
-        # 本文があれば追加
-        if message.content.strip():
-            text.append(pre_parse_message(message))
-        # スタンプがあれば追加
-        if message.stickers:
-            text.append(f"{message.stickers[0].name}のスタンプ")
-        # 添付ファイルがあれば追加
-        if message.attachments:
-            text.append(f"添付ファイルが送信されました")
-        # スタンプと本文を結合・整形
-        raw_message = "、".join(text)
-
-        parsed_message=parse_message(raw_message)
+        parsed_message=parse_message(message)
         await vp_play(bot, parsed_message, message.guild, message.author)
 
 # Utility Commands
