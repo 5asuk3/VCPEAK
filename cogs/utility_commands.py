@@ -14,6 +14,21 @@ def is_owner_or_admin():
 class AdminCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.bot.remove_command("help")  # デフォルトのヘルプコマンドを削除
+        
+    # Utility Commands
+    @commands.hybrid_command(name="help", description="ヘルプメッセージを表示")
+    async def help_command(self, ctx):
+        embed = EMBED_DEFAULT.copy()
+        embed.title = "VCPEAK ヘルプ"
+        embed.add_field(name="/connect", value="ボイスチャンネルへの参加", inline=False)
+        embed.add_field(name="/disconnect", value="ボイスチャンネルからの退出", inline=False)
+        embed.add_field(name="/voice-list", value="キャラクター一覧の取得", inline=False)
+        embed.add_field(name="/dict", value="ことばリスト関連のコマンド", inline=False)
+        embed.add_field(name="/config", value="ユーザー設定関連のコマンド", inline=False)
+        embed.add_field(name="/server-config", value="サーバー設定関連のコマンド", inline=False)
+        embed.add_field(name="/restart", value="ボットの再起動(要注意！)", inline=False)
+        await ctx.send(embed=embed)
 
     @commands.hybrid_command(name="reload", description="モジュールの再読み込み")
     async def reload(self, ctx):
