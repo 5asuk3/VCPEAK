@@ -115,20 +115,4 @@ async def on_message(message):
         parsed_message=parse_message(message)
         await vp_play(bot, parsed_message, message.guild, message.author)
 
-# Utility Commands
-bot.remove_command("help")  # デフォルトのヘルプコマンドを削除
-@bot.hybrid_command(name="help", description="ヘルプメッセージを表示")
-async def help_command(ctx):
-    embed = EMBED_DEFAULT.copy()
-    embed.title = "VCPEAK ヘルプ"
-    embed.add_field(name="/connect", value="ボイスチャンネルへの参加", inline=False)
-    embed.add_field(name="/disconnect", value="ボイスチャンネルからの退出", inline=False)
-    embed.add_field(name="/voice-list", value="キャラクター一覧の取得", inline=False)
-    embed.add_field(name="/dict", value="ことばリスト関連のコマンド", inline=False)
-    embed.add_field(name="/config", value="ユーザー設定関連のコマンド", inline=False)
-    embed.add_field(name="/server-config", value="サーバー設定関連のコマンド", inline=False)
-    embed.add_field(name="/restart", value="ボットの再起動(要注意！)", inline=False)
-    await ctx.send(embed=embed)
-
-
 bot.run(TOKEN)
