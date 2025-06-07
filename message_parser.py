@@ -61,10 +61,13 @@ def pre_parse_message(message : discord.Message):
     mention_pattern = r'<@!?(\d+)>'
     channel_link_pattern = r'<#(\d+)>'
     message_link_pattern = r'https://discord(?:app)?\.com/channels/(\d+)/(\d+)/(\d+)'
+
+    if not message.guild:
+        return message.content
     
     def repl_men(match):
         user_id = int(match.group(1))
-        member = message.guild.get_member(user_id)
+        member = message.guild.get_member(user_id) if message.guild else None
         if member:
             return f"{member.display_name}へのメンション"
         else:
@@ -72,7 +75,7 @@ def pre_parse_message(message : discord.Message):
 
     def repl_ch(match):
         channel_id = int(match.group(1))
-        channel = message.guild.get_channel(channel_id)
+        channel = message.guild.get_channel(channel_id) if message.guild else None
         if channel:
             return f"{channel.name}へのリンク"
         else:
@@ -80,7 +83,7 @@ def pre_parse_message(message : discord.Message):
     
     def repl_msg(match):
         channel_id = int(match.group(2))
-        channel = message.guild.get_channel(channel_id)
+        channel = message.guild.get_channel(channel_id) if message.guild else None
         if channel:
             return f"{channel.name}へのリンク"
         else:

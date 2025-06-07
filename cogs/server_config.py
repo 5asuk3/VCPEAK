@@ -6,7 +6,7 @@ class ServerConfig(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def ensure_server_settings(server_id):
+    def ensure_server_settings(self, server_id):
         if server_id not in server_settings:
             server_settings[server_id] = SERVER_DEFAULT.copy()
             save_json("servers.json", server_settings)

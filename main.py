@@ -3,7 +3,7 @@ import sys
 import discord
 from discord import app_commands
 from discord.ext import commands
-from config import TOKEN, PREFIX, SERVER_DEFAULT, NARRATORS, EMOTIONS, EMBED_DEFAULT, server_settings, joined_text_channels
+from config import TOKEN, PREFIX, USER_DEFAULT, SERVER_DEFAULT, NARRATORS, EMOTIONS, EMBED_DEFAULT, server_settings, joined_text_channels
 from json_loader import save_json
 from message_parser import parse_message, pre_parse_message
 from vp_service import vp_play
@@ -24,8 +24,21 @@ bot.setup_hook = setup_hook
 @bot.event
 async def on_ready():
     await bot.tree.sync()
-    EMBED_DEFAULT.set_author(name=bot.user.name, url="https://github.com/5asuk3/VCPEAK", icon_url=bot.user.avatar.url)
+    if bot.user:
+        EMBED_DEFAULT.set_author(name=bot.user.name, url="https://github.com/5asuk3/VCPEAK", icon_url=bot.user.display_avatar.url)
     print(f"Logged in as {bot.user}")
+
+    print("利用可能なキャラクター:")
+    for narrator in NARRATORS:
+        print(f"\tナレーター: {narrator}\t感情: {', '.join(EMOTIONS[narrator])}")
+    print("サーバーのデフォルト設定:")
+    print(f"\t", ", ".join(f"{key}={value}" for key, value in SERVER_DEFAULT.items()))
+    print("ユーザーのデフォルト設定:")
+    print(f"\t", ", ".join(f"{key}={value}" for key, value in USER_DEFAULT.items()))
+
+    print("現在入っているサーバー:")
+    for guild in bot.guilds:
+        print(f"\tサーバー名: {guild.name}({guild.id})")
 
 @bot.event
 async def on_guild_join(guild):
@@ -76,7 +89,7 @@ async def disconnect(ctx):
 @bot.event
 async def on_voice_state_update(member, before, after):
     # Bot自身が切断された場合
-    if member.id == bot.user.id:
+    if bot.user and member.id == bot.user.id:
         # ボイスチャンネルから退出した場合
         if before.channel is not None and after.channel is None:
             joined_text_channels.pop(member.guild.id, None)

@@ -6,7 +6,6 @@ from json_loader import load_json
 def update_dict_pattern():
     keys = [k for k in dictionary if k]  # 空文字列を除外
     dict_pattern[0] = re.compile("|".join(re.escape(k) for k in sorted(keys, key=len, reverse=True)))
-    print(dict_pattern[0].pattern)  # 正規表現パターンを表示
 
 # 設定の読み込み
 data = load_json("../config.json")
@@ -21,7 +20,7 @@ SERVER_DEFAULT=data['server_default']
 user_settings = load_json("users.json")
 server_settings = load_json("servers.json")
 dictionary=load_json("dict.json")
-dict_pattern = [None]  # 辞書の正規表現パターンを格納するリスト
+dict_pattern =[]  # 辞書の正規表現パターンを格納するリスト（リストとして定義）
 update_dict_pattern()
 
 EMBED_DEFAULT = discord.Embed(
@@ -65,11 +64,3 @@ if USER_DEFAULT['emotion']:
 print("設定の読み込みが完了しました。")
 print(f"コマンドプレフィックス: {PREFIX}")
 print(f"VOICEPEAKのパス: {VOICEPEAK_PATH}")
-
-print("利用可能なキャラクター:")
-for narrator in NARRATORS:
-    print(f"\tナレーター: {narrator}\t感情: {', '.join(EMOTIONS[narrator])}")
-print("サーバーのデフォルト設定:")
-print(f"\t", ", ".join(f"{key}={value}" for key, value in SERVER_DEFAULT.items()))
-print("ユーザーのデフォルト設定:")
-print(f"\t", ", ".join(f"{key}={value}" for key, value in USER_DEFAULT.items()))
