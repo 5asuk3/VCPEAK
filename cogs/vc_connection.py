@@ -1,5 +1,5 @@
 from discord.ext import commands
-from config import joined_text_channels
+from config import SERVER_DEFAULT, server_settings, joined_text_channels
 from vp_service import vp_play
 
 class VCConnection(commands.Cog):
@@ -45,19 +45,43 @@ class VCConnection(commands.Cog):
     async def on_voice_state_update(self, member, before, after):
         bot = self.bot
         voice_client = member.guild.voice_client
-        if not (before.channel == voice_client.channel or after.channel == voice_client.channel):
+        text_channel=bot.get_channel(joined_text_channels.get(member.guild.id))
+        # 参加していないボイスチャンネルについては何もしない
+        if (not voice_client
+             or (member.id == bot.user.id)
+             or (before.channel and after.channel)
+             or not ((before.channel and before.channel.id == voice_client.channel.id) or (after.channel and after.channel.id == voice_client.channel.id))
+            ):
             return
+
+        # ボイスチャンネルに参加者がいない場合、設定に応じて自動で退出する
+        if server_settings[str(member.guild.id)].get("auto_disconnect", SERVER_DEFAULT["auto_disconnect"]):
+            if all(member.bot for member in voice_client.channel.members):
+                await voice_client.disconnect()
+                joined_text_channels.pop(member.guild.id, None)
+                await text_channel.send(f"参加者がいなくなったため、ボイスチャンネルから退出しました。")
+                return
+        
+        # ボイスチャンネルの参加・退出・移動を検知
         if after.channel != before.channel and member.id != bot.user.id:
+            text = ""
             text_channel=bot.get_channel(joined_text_channels.get(member.guild.id))
             if before.channel is None and after.channel is not None:
-                await text_channel.send(f"{member.display_name}({member.name})がボイスチャンネルに参加しました。")
+                await text_channel.send(f":inbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルに参加しました。")
+                text=f"{member.display_name}がボイスチャンネルに参加しました。"
             elif before.channel is not None and after.channel is None:
-                await text_channel.send(f"{member.display_name}({member.name})がボイスチャンネルから退出しました。")
+                await text_channel.send(f":outbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルから退出しました。")
+                text=f"{member.display_name}がボイスチャンネルから退出しました。"
             elif before.channel is not None and after.channel is not None:
                 if before.channel.id == voice_client.channel.id:
-                    await text_channel.send(f"{member.display_name}({member.name})がボイスチャンネルを移動しました。")
+                    await text_channel.send(f":outbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルを移動しました。")
+                    text=f"{member.display_name}がボイスチャンネルを移動しました。"
                 elif after.channel.id == voice_client.channel.id:
-                    await text_channel.send(f"{member.display_name}({member.name})がボイスチャンネルに参加しました。")
+                    await text_channel.send(f":inbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルに参加しました。")
+                    text=f"{member.display_name}がボイスチャンネルに参加しました。"
+            # サーバー設定に応じて読み上げ
+            if server_settings[str(member.guild.id)].get('announce_join_leave', SERVER_DEFAULT['announce_join_leave']):
+                await vp_play(bot, text, member.guild, bot.user)
 
 async def setup(bot):
     await bot.add_cog(VCConnection(bot))
