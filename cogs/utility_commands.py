@@ -2,6 +2,15 @@ import os
 import sys
 from discord.ext import commands
 from config import EMBED_DEFAULT, joined_text_channels
+
+def is_owner_or_admin():
+    async def predicate(ctx):
+        return (
+            await ctx.bot.is_owner(ctx.author)
+            or (ctx.author.guild_permissions and ctx.author.guild_permissions.administrator)
+        )
+    return commands.check(predicate)
+
 class AdminCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -13,7 +22,7 @@ class AdminCommands(commands.Cog):
         success = []
         failed = []
         for ext in list(self.bot.extensions):
-            if ext == "cogs.admin_commands":
+            if ext == "cogs.utility_commands":
                 continue
             try:
                 await self.bot.reload_extension(ext)
@@ -30,7 +39,7 @@ class AdminCommands(commands.Cog):
         embed.description = desc
         await ctx.send(embed=embed)
 
-    @commands.has_permissions(administrator=True)
+    @is_owner_or_admin()
     @commands.hybrid_command(name="restart", description="ボットの再起動")
     async def restart(self, ctx):
         """ボットを再起動"""
@@ -48,6 +57,16 @@ class AdminCommands(commands.Cog):
         await ctx.send(embed=embed)
         await self.bot.close()  # Discordとの接続を閉じる
         os.execv(sys.executable, [sys.executable] + sys.argv)  # プロセスを再起動
+        
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.CheckFailure):
+            embed = EMBED_DEFAULT.copy()
+            embed.title = "権限エラー"
+            embed.description = "このコマンドはBotオーナーまたは管理者のみ実行できます。"
+            await ctx.send(embed=embed, ephemeral=True)
+        else:
+            raise error  # 他のエラーは通常通り
 
 async def setup(bot):
     await bot.add_cog(AdminCommands(bot))

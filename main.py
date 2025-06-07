@@ -14,7 +14,7 @@ async def setup_hook():
     await bot.load_extension("cogs.dictionary")  # 辞書関連のコグを読み込み
     await bot.load_extension("cogs.user_config")  # ユーザー設定関連のコグを読み込み
     await bot.load_extension("cogs.server_config")  # サーバー設定関連のコグを読み込み
-    await bot.load_extension("cogs.admin_commands")  # 管理者コマンド関連のコグを読み込み
+    await bot.load_extension("cogs.utility_commands")  # ユーティリティコマンド関連のコグを読み込み
 
 bot.setup_hook = setup_hook
 
