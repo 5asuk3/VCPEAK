@@ -10,6 +10,13 @@ class ServerConfig(commands.Cog):
         if server_id not in server_settings:
             server_settings[server_id] = SERVER_DEFAULT.copy()
             save_json("servers.json", server_settings)
+            
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild):
+        print(f"Botがサーバー「{guild.name}」({guild.id}) に参加しました。")
+        if str(guild.id) not in server_settings:
+            server_settings[str(guild.id)] = SERVER_DEFAULT.copy()
+            save_json("servers.json", server_settings)
 
     # server setting command
     @commands.hybrid_group(name="server-config", description="設定関連のコマンド")
