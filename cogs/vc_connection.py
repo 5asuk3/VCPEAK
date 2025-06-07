@@ -1,3 +1,4 @@
+import itertools
 from discord.ext import commands
 from config import SERVER_DEFAULT, server_settings, joined_text_channels
 from vp_service import vp_play
@@ -16,18 +17,18 @@ class VCConnection(commands.Cog):
             if ctx.guild.voice_client is not None:
                 if ctx.guild.voice_client.channel != channel:
                     await ctx.guild.voice_client.move_to(channel)
-                    joined_text_channels[ctx.guild.id] = ctx.channel.id
                     await ctx.send("ボイスチャンネルを移動しました。")
+                    joined_text_channels[ctx.guild.id] = ctx.channel.id
                     return
                 else:
                     await ctx.voice_client.disconnect()
                     await channel.connect()
-                    joined_text_channels[ctx.guild.id] = ctx.channel.id
                     await ctx.send("すでにボイスチャンネルに参加しているため、再参加します。")
+                    joined_text_channels[ctx.guild.id] = ctx.channel.id
                     return
             await channel.connect()
-            joined_text_channels[ctx.guild.id] = ctx.channel.id
             await ctx.send("ボイスチャンネルに参加しました。")
+            joined_text_channels[ctx.guild.id] = ctx.channel.id
         else:
             await ctx.send("先にボイスチャンネルに参加してください。")
 
@@ -36,8 +37,8 @@ class VCConnection(commands.Cog):
         """ボイスチャンネルから退出"""
         if ctx.voice_client:
             await ctx.voice_client.disconnect()
-            joined_text_channels.pop(ctx.guild.id, None)
             await ctx.send("ボイスチャンネルから退出しました。")
+            joined_text_channels.pop(ctx.guild.id, None)
         else:
             await ctx.send("ボイスチャンネルに参加していません。")
 
@@ -46,20 +47,36 @@ class VCConnection(commands.Cog):
         bot = self.bot
         voice_client = member.guild.voice_client
         text_channel=bot.get_channel(joined_text_channels.get(member.guild.id))
-        # 参加していないボイスチャンネルについては何もしない
-        if (not voice_client
-             or (member.id == bot.user.id)
+
+        if ((member.id == bot.user.id)
              or (before.channel and after.channel)
              or not ((before.channel and before.channel.id == voice_client.channel.id) or (after.channel and after.channel.id == voice_client.channel.id))
             ):
+            return
+        
+        # TODO自動入室
+        # all_members=list(itertools.chain.from_iterable(vc.members for vc in member.guild.voice_channels))
+        # # 参加していないとき、設定されているサーバーに自動でボイスチャンネルに参加する
+        # if (not voice_client 
+        #     and server_settings[str(member.guild.id)]["auto_connect"] 
+        #     and (after.channel and after.channel.guild.id == member.guild.id) 
+        #     # and (not all_members or all(member.bot for member in all_members))
+        #     ):
+        #     await after.channel.connect()
+        #     await text_channel.send(f"ボイスチャンネルに自動で参加しました。")
+        #     joined_text_channels[member.guild.id] = server_settings[str(member.guild.id)]["auto_connect"]
+        #     return
+            
+        # 参加していないボイスチャンネルについては何もしない
+        if not voice_client:
             return
 
         # ボイスチャンネルに参加者がいない場合、設定に応じて自動で退出する
         if server_settings[str(member.guild.id)].get("auto_disconnect", SERVER_DEFAULT["auto_disconnect"]):
             if all(member.bot for member in voice_client.channel.members):
                 await voice_client.disconnect()
-                joined_text_channels.pop(member.guild.id, None)
                 await text_channel.send(f"参加者がいなくなったため、ボイスチャンネルから退出しました。")
+                joined_text_channels.pop(member.guild.id, None)
                 return
         
         # ボイスチャンネルの参加・退出・移動を検知

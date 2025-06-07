@@ -34,7 +34,10 @@ class ServerConfig(commands.Cog):
         server_id = str(ctx.guild.id)
         self.ensure_server_settings(server_id)
         settings = server_settings[server_id]
-        embed.add_field(name="音量", value=settings['volume'], inline=False)
+        embed.add_field(name="自動参加", value=f"{'True (channel: <#' + str(settings['auto_connect']) + '> )' if settings['auto_connect'] else 'False'}", inline=False)
+        embed.add_field(name="自動退出", value=settings['auto_disconnect'], inline=True)
+        embed.add_field(name="入退出通知の読み上げ", value=settings['announce_join_leave'], inline=True)
+        embed.add_field(name="音量", value=settings['volume'], inline=True)
         
         await ctx.send(embed=embed) 
 
@@ -49,19 +52,24 @@ class ServerConfig(commands.Cog):
             await ctx.send(embed=embed)
             return
         
-    # @server_config.command(name="auto-connect", description="ボイスチャンネルへの自動参加を設定")
-    # async def set_auto_connect(self, ctx, value: bool=SERVER_DEFAULT['auto_connect']):
-    #     """ボイスチャンネルへの自動参加を設定"""
-    #     embed= EMBED_DEFAULT.copy()
-    #     embed.title = f"{ctx.guild.name}のサーバー設定"
+    @server_config.command(name="auto-connect", description="ボイスチャンネルへの自動参加を設定")
+    async def set_auto_connect(self, ctx):
+        """ボイスチャンネルへの自動参加を設定"""
+        embed= EMBED_DEFAULT.copy()
+        embed.title = f"{ctx.guild.name}のサーバー設定"
 
-    #     server_id=str(ctx.guild.id)
-    #     self.ensure_server_settings(str(server_id))
-    #     server_settings[str(server_id)]["auto_connect"] = value
-    #     save_json("servers.json", server_settings)
-        
-    #     embed.description = f"ボイスチャンネルへの自動参加を{'有効' if value else '無効'}にしました。"
-    #     await ctx.send(embed=embed)
+        server_id=str(ctx.guild.id)
+        self.ensure_server_settings(str(server_id))
+        if server_settings[str(server_id)]["auto_connect"] == ctx.channel.id:
+            server_settings[str(server_id)]["auto_connect"] = 0
+            save_json("servers.json", server_settings)
+            embed.description = "ボイスチャンネルの自動参加を解除しました。"
+            await ctx.send(embed=embed)
+        else:
+            server_settings[str(server_id)]["auto_connect"] = ctx.channel.id
+            save_json("servers.json", server_settings)
+            embed.description = f"ボイスチャンネルの自動参加を設定しました。\n自動参加後は、<#{ctx.channel.id}>のチャットを読み上げます。\n自動参加を解除するには同じチャンネルでもう一度コマンドを実行してください。"
+            await ctx.send(embed=embed)
 
     @server_config.command(name="auto-disconnect", description="ボイスチャンネルからの自動退出を設定")
     async def set_auto_disconnect(self, ctx, value: bool=SERVER_DEFAULT['auto_disconnect']):
