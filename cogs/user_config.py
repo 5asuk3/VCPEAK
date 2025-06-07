@@ -31,7 +31,7 @@ class UserConfig(commands.Cog):
         if ctx.invoked_subcommand is None:
             await self.show_user_config(self, ctx)
 
-    @user_config.command(name="list", description="ユーザー設定を表示")
+    @user_config.command(name="show", description="ユーザー設定を表示")
     async def show_user_config(self, ctx):
         """ユーザー設定を表示"""
         embed= EMBED_DEFAULT.copy()

@@ -24,7 +24,7 @@ class ServerConfig(commands.Cog):
         if ctx.invoked_subcommand is None:
             await self.show_server_config(ctx)
 
-    @server_config.command(name="list", description="サーバー設定を表示")
+    @server_config.command(name="show", description="サーバー設定を表示")
     async def show_server_config(self, ctx):
         """サーバー設定を表示"""
         embed= EMBED_DEFAULT.copy()
