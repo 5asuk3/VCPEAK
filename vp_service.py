@@ -9,10 +9,12 @@ from config import VOICEPEAK_PATH, server_settings, user_settings, USER_DEFAULT,
 voice_queue = collections.defaultdict(asyncio.Queue)
 playing_flags = collections.defaultdict(lambda: False)  # 再生中フラグ
 
+
 async def vp_play(bot, text, guild, user):
     await voice_queue[guild.id].put((text, user.id))
     if not playing_flags[guild.id]:
         await vp_play_next(bot, guild)
+
 
 async def vp_play_next(bot, guild):
     playing_flags[guild.id]=True

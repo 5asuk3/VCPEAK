@@ -4,9 +4,11 @@ from config import joined_text_channels
 from message_parser import parse_message
 from vp_service import vp_play
 
+
 class TTS(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
 
     # TTS Event
     @commands.Cog.listener()

@@ -7,6 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from config import dictionary, dict_pattern
 
+
 def get_url_title(url):
     try:
         response = requests.get(url, timeout=5)
@@ -18,6 +19,7 @@ def get_url_title(url):
         logging.error(f"URLのタイトル取得に失敗: {url} - {e}")
         return "タイトル取得失敗"
     
+
 def replace_url(text):
     url_pattern = r'https?://[\w/:%#\$&\?\(\)~\.=\+\-]+'
     def replace(match):
@@ -26,12 +28,14 @@ def replace_url(text):
         return f"『{title}』へのリンク"
     return re.sub(url_pattern, replace, text)
 
+
 def replace_emoji(text):
     # カスタム絵文字の置換
     text = re.sub(r'<a?:([a-zA-Z0-9_]+):\d+>', r':\1:', text)
     # 通常の絵文字の置換
     text = emoji.demojize(text, language='ja')
     return text
+
 
 def replace_word(text):
     # 辞書に基づいて単語を置換
@@ -43,6 +47,7 @@ def replace_word(text):
     # 半角文字を全角に変換(正規化)
     text = unicodedata.normalize('NFKC', text)
     return text
+
 
 # メンションやリンクを事前に解析
 def pre_parse_message(message : discord.Message):
@@ -115,6 +120,7 @@ def pre_parse_message(message : discord.Message):
 
     # スタンプと本文を結合・整形して返す
     return "、".join(msg_componets)
+
 
 def parse_message(message : discord.Message):
     # Discord内の機能にまつわるパースを行う

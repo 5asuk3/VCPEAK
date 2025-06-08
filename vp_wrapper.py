@@ -1,5 +1,6 @@
 import subprocess
 
+
 def synthesize_vp(voicepeak_path: str, text: str, output_path: str, narrator: str="", emotion: str="", speed: str="", pitch: str=""):
     cmd = [
         voicepeak_path, 

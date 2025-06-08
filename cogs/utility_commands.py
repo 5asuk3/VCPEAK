@@ -2,20 +2,15 @@ import os
 import sys
 from discord.ext import commands
 from config import NARRATORS, EMOTIONS, SERVER_DEFAULT, USER_DEFAULT, EMBED_DEFAULT, joined_text_channels
+from utils import is_owner_or_admin, handle_check_fauilure
 
-def is_owner_or_admin():
-    async def predicate(ctx):
-        return (
-            await ctx.bot.is_owner(ctx.author)
-            or (ctx.author.guild_permissions and ctx.author.guild_permissions.administrator)
-        )
-    return commands.check(predicate)
 
 class UtilityCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.bot.remove_command("help")  # デフォルトのヘルプコマンドを削除
         
+
     @commands.Cog.listener()
     async def on_ready(self):
         bot = self.bot
@@ -35,6 +30,7 @@ class UtilityCommands(commands.Cog):
         for guild in bot.guilds:
             print(f"\tサーバー名: {guild.name}({guild.id})")
 
+
     # Utility Commands
     @commands.hybrid_command(name="voice-list", description="キャラクター一覧の表示")
     async def get_narrator(self, ctx):
@@ -46,6 +42,7 @@ class UtilityCommands(commands.Cog):
             emotion=", ".join(EMOTIONS[narrator])
             embed.add_field(name=narrator, value=f"感情一覧:{emotion}", inline=False)
         await ctx.send(embed=embed)
+
 
     @commands.hybrid_command(name="help", description="ヘルプメッセージを表示")
     async def help_command(self, ctx):
@@ -59,6 +56,7 @@ class UtilityCommands(commands.Cog):
         embed.add_field(name="/server-config", value="サーバー設定関連のコマンド", inline=False)
         embed.add_field(name="/restart", value="ボットの再起動(要注意！)", inline=False)
         await ctx.send(embed=embed)
+
 
     @commands.hybrid_command(name="reload", description="モジュールの再読み込み")
     async def reload(self, ctx):
@@ -85,6 +83,7 @@ class UtilityCommands(commands.Cog):
         embed.description = desc
         await ctx.send(embed=embed)
 
+
     @is_owner_or_admin()
     @commands.hybrid_command(name="restart", description="ボットの再起動")
     async def restart(self, ctx):
@@ -105,15 +104,14 @@ class UtilityCommands(commands.Cog):
         await bot.close()  # Discordとの接続を閉じる
         os.execv(sys.executable, [sys.executable] + sys.argv)  # プロセスを再起動
         
+
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        if isinstance(error, commands.CheckFailure):
-            embed = EMBED_DEFAULT.copy()
-            embed.title = "権限エラー"
-            embed.description = "このコマンドはBotオーナーまたは管理者のみ実行できます。"
-            await ctx.send(embed=embed, ephemeral=True)
+        if await handle_check_fauilure(ctx, error, EMBED_DEFAULT):
+            return
         else:
             raise error  # 他のエラーは通常通り
+
 
 async def setup(bot):
     await bot.add_cog(UtilityCommands(bot))

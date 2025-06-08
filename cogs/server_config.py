@@ -1,16 +1,19 @@
 from discord.ext import commands
-from json_loader import save_json
+from utils import save_json, is_owner_or_admin, handle_check_fauilure
 from config import EMBED_DEFAULT, server_settings, SERVER_DEFAULT
+
 
 class ServerConfig(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+
     def ensure_server_settings(self, server_id):
         if server_id not in server_settings:
             server_settings[server_id] = SERVER_DEFAULT.copy()
             save_json("servers.json", server_settings)
-            
+
+
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
         print(f"Botがサーバー「{guild.name}」({guild.id}) に参加しました。")
@@ -18,11 +21,13 @@ class ServerConfig(commands.Cog):
             server_settings[str(guild.id)] = SERVER_DEFAULT.copy()
             save_json("servers.json", server_settings)
 
+
     # server setting command
     @commands.hybrid_group(name="server-config", description="設定関連のコマンド")
     async def server_config(self, ctx):
         if ctx.invoked_subcommand is None:
             await self.show_server_config(ctx)
+
 
     @server_config.command(name="show", description="サーバー設定を表示")
     async def show_server_config(self, ctx):
@@ -41,6 +46,8 @@ class ServerConfig(commands.Cog):
         
         await ctx.send(embed=embed) 
 
+
+    @is_owner_or_admin()
     @server_config.command(name="volume", description="ボイスチャンネルの音量を設定")
     async def set_volume(self, ctx, volume: int=SERVER_DEFAULT['volume']):
         """ボイスチャンネルの音量を設定"""
@@ -52,6 +59,8 @@ class ServerConfig(commands.Cog):
             await ctx.send(embed=embed)
             return
         
+
+    @is_owner_or_admin()
     @server_config.command(name="auto-connect", description="ボイスチャンネルへの自動参加を設定")
     async def set_auto_connect(self, ctx):
         """ボイスチャンネルへの自動参加を設定"""
@@ -63,14 +72,16 @@ class ServerConfig(commands.Cog):
         if server_settings[str(server_id)]["auto_connect"] == ctx.channel.id:
             server_settings[str(server_id)]["auto_connect"] = 0
             save_json("servers.json", server_settings)
-            embed.description = "ボイスチャンネルの自動参加を解除しました。"
+            embed.description = "ボイスチャンネルへの自動参加を解除しました。"
             await ctx.send(embed=embed)
         else:
             server_settings[str(server_id)]["auto_connect"] = ctx.channel.id
             save_json("servers.json", server_settings)
-            embed.description = f"ボイスチャンネルの自動参加を設定しました。\n自動参加後は、<#{ctx.channel.id}>のチャットを読み上げます。\n自動参加を解除するには同じチャンネルでもう一度コマンドを実行してください。"
+            embed.description = f"ボイスチャンネルへの自動参加を設定しました。\n自動参加後は、<#{ctx.channel.id}>のチャットを読み上げます。\n自動参加を解除するには同じチャンネルでもう一度コマンドを実行してください。"
             await ctx.send(embed=embed)
 
+
+    @is_owner_or_admin()
     @server_config.command(name="auto-disconnect", description="ボイスチャンネルからの自動退出を設定")
     async def set_auto_disconnect(self, ctx, value: bool=SERVER_DEFAULT['auto_disconnect']):
         """ボイスチャンネルからの自動退出を設定"""
@@ -85,6 +96,8 @@ class ServerConfig(commands.Cog):
         embed.description = f"ボイスチャンネルからの自動退出を{'有効' if value else '無効'}にしました。"
         await ctx.send(embed=embed)
 
+
+    @is_owner_or_admin()
     @server_config.command(name="join-leave-announcement", description="ボイスチャンネルの参加・退出通知を設定")
     async def set_announcement(self, ctx, value: bool=SERVER_DEFAULT['announce_join_leave']):
         """ボイスチャンネルの参加・退出通知を設定"""
@@ -99,6 +112,8 @@ class ServerConfig(commands.Cog):
         embed.description = f"ボイスチャンネルの参加・退出通知を{'有効' if value else '無効'}にしました。"
         await ctx.send(embed=embed)
 
+
+    @is_owner_or_admin()
     @server_config.command(name="reset", description="サーバー設定をデフォルトにリセット")
     async def reset_server_config(self, ctx):
         """サーバー設定をデフォルトにリセット"""
@@ -111,6 +126,15 @@ class ServerConfig(commands.Cog):
         save_json("servers.json", server_settings)
         
         await ctx.send(embed=embed)
+
+        
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        if await handle_check_fauilure(ctx, error, EMBED_DEFAULT):
+            return
+        else:
+            raise error # 他のエラーは通常通り
+
 
 async def setup(bot):
     await bot.add_cog(ServerConfig(bot))

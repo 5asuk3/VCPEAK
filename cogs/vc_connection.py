@@ -3,9 +3,11 @@ from discord.ext import commands
 from config import SERVER_DEFAULT, server_settings, joined_text_channels
 from vp_service import vp_play
 
+
 class VCConnection(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
 
     # Voice Channel Commands
     @commands.hybrid_command(name="connect", description="ボイスチャンネルに参加")
@@ -32,6 +34,7 @@ class VCConnection(commands.Cog):
         else:
             await ctx.send("先にボイスチャンネルに参加してください。")
 
+
     @commands.hybrid_command(name="disconnect", description="ボイスチャンネルから退出")
     async def disconnect(self, ctx):
         """ボイスチャンネルから退出"""
@@ -41,6 +44,7 @@ class VCConnection(commands.Cog):
             joined_text_channels.pop(ctx.guild.id, None)
         else:
             await ctx.send("ボイスチャンネルに参加していません。")
+
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -79,6 +83,7 @@ class VCConnection(commands.Cog):
                 joined_text_channels.pop(member.guild.id, None)
                 return
         
+
         # ボイスチャンネルの参加・退出・移動を検知
         if after.channel != before.channel and member.id != bot.user.id:
             text = ""
@@ -99,6 +104,7 @@ class VCConnection(commands.Cog):
             # サーバー設定に応じて読み上げ
             if server_settings[str(member.guild.id)].get('announce_join_leave', SERVER_DEFAULT['announce_join_leave']):
                 await vp_play(bot, text, member.guild, bot.user)
+
 
 async def setup(bot):
     await bot.add_cog(VCConnection(bot))

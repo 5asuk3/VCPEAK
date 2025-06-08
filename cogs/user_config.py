@@ -1,21 +1,25 @@
 import random
 from discord import app_commands
 from discord.ext import commands
-from json_loader import save_json
+from utils import save_json
 from config import EMBED_DEFAULT, user_settings, USER_DEFAULT, NARRATORS, EMOTIONS
+
 
 class UserConfig(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
 
     def ensure_user_settings(self, user_id):
         if user_id not in user_settings:
             user_settings[user_id] = USER_DEFAULT.copy()
             save_json("users.json", user_settings)
             
+
     async def narrator_autocomplete(self, interaction, current: str):
         """キャラクターのオートコンプリート"""
         return [app_commands.Choice(name=narrator, value=narrator) for narrator in NARRATORS if current.lower() in narrator.lower()]
+
 
     async def emotion_autocomplete(self, interaction, current: str):
         """感情のオートコンプリート"""
@@ -25,11 +29,13 @@ class UserConfig(commands.Cog):
             return []
         return [app_commands.Choice(name=emotion, value=emotion) for emotion in EMOTIONS[narrator] if current.lower() in emotion.lower()]
 
+
     # Config Commands
     @commands.hybrid_group(name="config", description="ユーザー設定")
     async def user_config(self, ctx):
         if ctx.invoked_subcommand is None:
             await self.show_user_config(self, ctx)
+
 
     @user_config.command(name="show", description="ユーザー設定を表示")
     async def show_user_config(self, ctx):
@@ -49,6 +55,7 @@ class UserConfig(commands.Cog):
         
         await ctx.send(embed=embed)
         
+
     @user_config.command(name="narrator", description="キャラクターを設定")
     @app_commands.autocomplete(narrator=narrator_autocomplete)
     async def set_narrator(self, ctx, narrator: str=USER_DEFAULT['narrator']):
@@ -68,6 +75,7 @@ class UserConfig(commands.Cog):
         save_json("users.json", user_settings)
         embed.description = f"キャラクターを「{narrator}」に設定しました。(感情設定はデフォルト値にリセットされました)"
         await ctx.send(embed=embed)
+
 
     @app_commands.autocomplete(emotion=emotion_autocomplete)
     @user_config.command(name="emotion", description="感情を設定")
@@ -94,6 +102,7 @@ class UserConfig(commands.Cog):
         embed.description = f"感情「{emotion}」を{value}%に設定しました。"
         await ctx.send(embed=embed)
 
+
     @user_config.command(name="speed", description="音声の速度を設定")
     async def set_speed(self, ctx, speed: int=USER_DEFAULT['speed']):
         embed= EMBED_DEFAULT.copy()
@@ -110,6 +119,7 @@ class UserConfig(commands.Cog):
 
         embed.description = f"音声の速度を{speed}%に設定しました。"
         await ctx.send(embed=embed)
+
 
     @user_config.command(name="pitch", description="音声のピッチを設定")
     async def set_pitch(self, ctx, pitch: int=USER_DEFAULT['pitch']):
@@ -128,6 +138,7 @@ class UserConfig(commands.Cog):
         
         embed.description = f"音声のピッチを{pitch}%に設定しました。"
         await ctx.send(embed=embed)
+
 
     @user_config.command(name="randomize", description="キャラクターや感情をランダムに設定")
     async def randomize_user_config(self, ctx):
@@ -170,6 +181,7 @@ class UserConfig(commands.Cog):
         save_json("users.json", user_settings)
         
         await ctx.send(embed=embed)
+
 
 async def setup(bot):
     await bot.add_cog(UserConfig(bot))
