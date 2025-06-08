@@ -26,10 +26,12 @@ dictionary=load_json("dict.json")
 dict_pattern: list[Optional[Pattern[str]]] = [None] # 辞書の正規表現パターンを格納するリスト（リストとして定義）
 update_dict_pattern()
 
+EMBED_COLOR_NORMAL = 0x4a913c  # デフォルトの埋め込みカラー
+EMBED_COLOR_ERROR = 0xFF0000  # エラー用の埋め込みカラー
 EMBED_DEFAULT = discord.Embed(
     title="VCPEAK",
     description="詳細な使い方は https://github.com/5asuk3/VCPEAK へ",
-    colour=0x4a913c
+    color=EMBED_COLOR_NORMAL
 )
 EMBED_DEFAULT.set_footer(text="VCPEAK", icon_url="https://avatars.githubusercontent.com/5asuk3")
 

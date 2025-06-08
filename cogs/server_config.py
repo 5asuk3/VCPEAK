@@ -1,6 +1,6 @@
 from discord.ext import commands
 from utils import save_json, is_owner_or_admin, handle_check_fauilure
-from config import EMBED_DEFAULT, server_settings, SERVER_DEFAULT
+from config import EMBED_DEFAULT, EMBED_COLOR_ERROR, server_settings, SERVER_DEFAULT
 
 
 class ServerConfig(commands.Cog):
@@ -66,6 +66,7 @@ class ServerConfig(commands.Cog):
 
         if volume < 0 or volume > 200:
             embed.description = "音量は0から200の範囲で設定してください。"
+            embed.color = EMBED_COLOR_ERROR
             await ctx.send(embed=embed)
             return
         
@@ -87,6 +88,7 @@ class ServerConfig(commands.Cog):
 
         if ctx.author.voice is None or not ctx.author.voice.channel.permissions_for(ctx.guild.me).connect:
             embed.description = "ボイスチャンネルに参加してからコマンドを実行してください。\nすでに参加している場合は、botがそのチャンネルに参加する権限があることを確認してください。"
+            embed.color = EMBED_COLOR_ERROR
             await ctx.send(embed=embed)
             return
         
@@ -155,7 +157,7 @@ class ServerConfig(commands.Cog):
 
         
     async def cog_command_error(self, ctx, error):
-        if await handle_check_fauilure(ctx, error, EMBED_DEFAULT):
+        if await handle_check_fauilure(ctx, error):
             return
         else:
             raise error # 他のエラーは通常通り

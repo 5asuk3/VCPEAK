@@ -1,6 +1,6 @@
 import itertools
 from discord.ext import commands
-from config import SERVER_DEFAULT, server_settings, joined_text_channels, EMBED_DEFAULT
+from config import SERVER_DEFAULT, server_settings, joined_text_channels, EMBED_DEFAULT, EMBED_COLOR_ERROR
 from vp_service import vp_play
 
 
@@ -35,6 +35,7 @@ class VCConnection(commands.Cog):
             embed = EMBED_DEFAULT.copy()
             embed.title = "参加エラー"
             embed.description = "ボイスチャンネルに参加できません。\nボイスチャンネルに参加してからコマンドを実行してください。\nすでに参加している場合は、botがそのチャンネルに参加する権限があることを確認してください。"
+            embed.color = EMBED_COLOR_ERROR
             await ctx.send(embed=embed)
 
 
@@ -49,6 +50,7 @@ class VCConnection(commands.Cog):
             embed = EMBED_DEFAULT.copy()
             embed.title = "退出エラー"
             embed.description = "ボイスチャンネルに参加していません。"
+            embed.color = EMBED_COLOR_ERROR
             await ctx.send(embed=embed)
 
 

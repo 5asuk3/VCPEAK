@@ -1,7 +1,7 @@
 from discord import app_commands
 from discord.ext import commands
 from utils import save_json
-from config import EMBED_DEFAULT, dictionary
+from config import EMBED_DEFAULT, EMBED_COLOR_ERROR, dictionary
 from config import update_dict_pattern
 
 
@@ -42,6 +42,7 @@ class Dictionary(commands.Cog):
 
         if from_word in dictionary:
             embed.description = f"単語「{from_word}」はすでに存在します。"
+            embed.color = EMBED_COLOR_ERROR
             await ctx.send(embed=embed)
             return
         
@@ -61,6 +62,7 @@ class Dictionary(commands.Cog):
 
         if word not in dictionary:
             embed.description = f"単語「{word}」はことばリストに存在しません。"
+            embed.color = EMBED_COLOR_ERROR
             await ctx.send(embed=embed)
             return
         

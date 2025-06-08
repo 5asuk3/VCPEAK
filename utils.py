@@ -1,6 +1,7 @@
 import os
 import json
 from discord.ext import commands
+from config import EMBED_COLOR_ERROR, EMBED_DEFAULT
 
 
 def load_json(filename):
@@ -27,11 +28,12 @@ def is_owner_or_admin():
     return commands.check(predicate)
 
 
-async def handle_check_fauilure(ctx, error, embed_default):
+async def handle_check_fauilure(ctx, error):
     if isinstance(error, commands.CheckFailure):
-        embed = embed_default.copy()
+        embed = EMBED_DEFAULT.copy()
         embed.title = "権限エラー"
         embed.description = "このコマンドを実行する権限がありません。"
+        embed.color = EMBED_COLOR_ERROR
         await ctx.send(embed=embed, ephemeral=True)
         return True
     return False

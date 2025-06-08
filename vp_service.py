@@ -4,7 +4,7 @@ import tempfile
 import collections
 import discord
 from vp_wrapper import synthesize_vp
-from config import VOICEPEAK_PATH, server_settings, user_settings, SERVER_DEFAULT, USER_DEFAULT, NARRATORS, EMOTIONS, joined_text_channels, EMBED_DEFAULT
+from config import VOICEPEAK_PATH, server_settings, user_settings, SERVER_DEFAULT, USER_DEFAULT, NARRATORS, EMOTIONS, joined_text_channels, EMBED_DEFAULT, EMBED_COLOR_ERROR
 
 synthesis_queue = collections.defaultdict(asyncio.Queue) # 音声合成キュー
 play_queue = collections.defaultdict(asyncio.Queue)  # 再生キュー
@@ -78,6 +78,7 @@ async def vp_synthesis_worker(bot, guild):
                         embed = EMBED_DEFAULT.copy()
                         embed.title = "音声合成エラー"
                         embed.description = f"音声合成に失敗しました。エラーコード: {result}"
+                        embed.color = EMBED_COLOR_ERROR
                         embed.add_field(name="内容", value=text, inline=False)
                         await channel.send(embed=embed)
 

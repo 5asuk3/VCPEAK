@@ -67,7 +67,6 @@ class UtilityCommands(commands.Cog):
         embed.add_field(name="/dict", value="ことばリスト関連のコマンド", inline=False)
         embed.add_field(name="/config", value="ユーザー設定関連のコマンド", inline=False)
         embed.add_field(name="/server-config", value="サーバー設定関連のコマンド", inline=False)
-        embed.add_field(name="/restart", value="ボットの再起動(要注意！)", inline=False)
         await ctx.send(embed=embed)
         return
 
@@ -120,7 +119,7 @@ class UtilityCommands(commands.Cog):
         
 
     async def cog_command_error(self, ctx, error):
-        if await handle_check_fauilure(ctx, error, EMBED_DEFAULT):
+        if await handle_check_fauilure(ctx, error):
             return
         else:
             raise error  # 他のエラーは通常通り

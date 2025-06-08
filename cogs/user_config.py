@@ -2,7 +2,7 @@ import random
 from discord import app_commands
 from discord.ext import commands
 from utils import save_json
-from config import EMBED_DEFAULT, user_settings, USER_DEFAULT, NARRATORS, EMOTIONS
+from config import EMBED_DEFAULT, EMBED_COLOR_ERROR, user_settings, USER_DEFAULT, NARRATORS, EMOTIONS
 
 
 class UserConfig(commands.Cog):
@@ -67,6 +67,7 @@ class UserConfig(commands.Cog):
         self.ensure_user_settings(user_id)
         if narrator not in NARRATORS:
             embed.description = f"引数がない、もしくは無効なキャラクターです。\n利用可能なキャラクター: {', '.join(NARRATORS)}"
+            embed.color = EMBED_COLOR_ERROR
             await ctx.send(embed=embed)
             return
         
@@ -89,11 +90,13 @@ class UserConfig(commands.Cog):
         narrator= user_settings[user_id]["narrator"]
         if emotion not in EMOTIONS.get(narrator, []):
             embed.description = f"引数がない、もしくは無効な感情です。\n{narrator}が利用可能な感情: {', '.join(EMOTIONS.get(narrator, []))}"
+            embed.color = EMBED_COLOR_ERROR
             await ctx.send(embed=embed)
             return
         #TODO不正な値のものがあったらデフォルト値に戻す
         if value < 0 or value > 100:
             embed.description = "感情の値は0から100の範囲で設定してください。"
+            embed.color = EMBED_COLOR_ERROR
             await ctx.send(embed=embed)
             return
         user_settings[user_id]["emotion"][emotion] = value
@@ -110,6 +113,7 @@ class UserConfig(commands.Cog):
 
         if speed < 50 or speed > 200:
             await ctx.send("速度は50から200の範囲で設定してください。")
+            embed.color = EMBED_COLOR_ERROR
             return
         
         user_id = str(ctx.author.id)
@@ -128,6 +132,7 @@ class UserConfig(commands.Cog):
         
         if pitch < -300 or pitch > 300:
             embed.description = "ピッチは-300から300の範囲で設定してください。"
+            embed.color = EMBED_COLOR_ERROR
             await ctx.send(embed=embed)
             return
         
