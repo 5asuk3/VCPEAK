@@ -2,7 +2,7 @@ import os
 import sys
 import discord
 from discord.ext import commands
-from config import NARRATORS, EMOTIONS, SERVER_DEFAULT, USER_DEFAULT, EMBED_DEFAULT, joined_text_channels
+from config import NARRATORS, EMOTIONS, SERVER_DEFAULT, USER_DEFAULT, EMBED_DEFAULT, EMBED_COLOR_ERROR, joined_text_channels
 from utils import is_owner_or_admin, handle_check_fauilure
 
 
@@ -116,13 +116,17 @@ class UtilityCommands(commands.Cog):
         await ctx.send(embed=embed)
         await bot.close()  # Discordとの接続を閉じる
         os.execv(sys.executable, [sys.executable] + sys.argv)  # プロセスを再起動
-        
+
 
     async def cog_command_error(self, ctx, error):
-        if await handle_check_fauilure(ctx, error):
+        embed= EMBED_DEFAULT.copy()
+        embed.title = "コマンドエラー"
+        embed.description = str(error)
+        embed.color = EMBED_COLOR_ERROR
+        if await handle_check_fauilure(ctx, error, embed):
             return
         else:
-            raise error  # 他のエラーは通常通り
+            raise error # 他のエラーは通常通り
         
 
 async def setup(bot):

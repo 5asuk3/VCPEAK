@@ -157,7 +157,11 @@ class ServerConfig(commands.Cog):
 
         
     async def cog_command_error(self, ctx, error):
-        if await handle_check_fauilure(ctx, error):
+        embed= EMBED_DEFAULT.copy()
+        embed.title = "コマンドエラー"
+        embed.description = str(error)
+        embed.color = EMBED_COLOR_ERROR
+        if await handle_check_fauilure(ctx, error, embed):
             return
         else:
             raise error # 他のエラーは通常通り
