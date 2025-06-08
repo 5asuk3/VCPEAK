@@ -34,7 +34,7 @@ class UserConfig(commands.Cog):
     @commands.hybrid_group(name="config", description="ユーザー設定")
     async def user_config(self, ctx):
         if ctx.invoked_subcommand is None:
-            await self.show_user_config(self, ctx)
+            await self.show_user_config(ctx)
 
 
     @user_config.command(name="show", description="ユーザー設定を表示")

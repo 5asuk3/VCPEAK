@@ -1,5 +1,6 @@
 import os
 import sys
+import discord
 from discord.ext import commands
 from config import NARRATORS, EMOTIONS, SERVER_DEFAULT, USER_DEFAULT, EMBED_DEFAULT, joined_text_channels
 from utils import is_owner_or_admin, handle_check_fauilure
@@ -9,7 +10,7 @@ class UtilityCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.bot.remove_command("help")  # デフォルトのヘルプコマンドを削除
-        
+
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -41,6 +42,18 @@ class UtilityCommands(commands.Cog):
         for narrator in NARRATORS:
             emotion=", ".join(EMOTIONS[narrator])
             embed.add_field(name=narrator, value=f"感情一覧:{emotion}", inline=False)
+        await ctx.send(embed=embed)
+
+
+    @commands.hybrid_command(name="ping", description="Botの応答速度を確認")
+    async def ping(self, ctx):
+        """Botの応答速度を確認"""
+        bot=self.bot
+        latency = round(bot.latency * 1000)
+        
+        embed = EMBED_DEFAULT.copy()
+        embed.title = "応答速度"
+        embed.description = f"現在の応答速度: {latency}ms"
         await ctx.send(embed=embed)
 
 

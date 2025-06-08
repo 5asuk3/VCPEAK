@@ -46,7 +46,10 @@ class ServerConfig(commands.Cog):
         server_id = str(ctx.guild.id)
         self.ensure_server_settings(server_id)
         settings = server_settings[server_id]
-        embed.add_field(name="自動参加", value=f"{'True (channel: <#' + str(settings['auto_connect']) + '> )' if settings['auto_connect'] else 'False'}", inline=False)
+        if settings['auto_connect']:
+            embed.add_field(name="自動参加チャンネル", value="\n".join(f"<#{voice_id}> (text channel: <#{text_id}>)" for voice_id, text_id in settings['auto_connect'].items()), inline=False)
+        else :
+            embed.add_field(name="自動参加チャンネル", value="なし", inline=False)
         embed.add_field(name="自動退出", value=settings['auto_disconnect'], inline=True)
         embed.add_field(name="入退出通知の読み上げ", value=settings['announce_join_leave'], inline=True)
         embed.add_field(name="音量", value=settings['volume'], inline=True)
