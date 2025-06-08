@@ -30,8 +30,20 @@ async def vp_synthesis_worker(bot, guild):
                 user_set["emotion"] = {emotion_name: 0 for emotion_name in EMOTIONS[user_set['narrator']]}
             joined_emotion = ", ".join(f"{emotion_name}={value}" for emotion_name, value in user_set['emotion'].items())
 
+            voice_client=guild.voice_client
+            # ボイスチャンネルが切断されている場合は終了
+            if not voice_client:
+                while not queue.empty():
+                    try:
+                        tmp_path=queue.get_nowait()
+                        queue.task_done()
+                    except asyncio.QueueEmpty:
+                        break
+                break
+            
             retry_count = 0
             while retry_count < 3:
+                
                 with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
                     tmp_path=tmp.name
                 
@@ -56,7 +68,7 @@ async def vp_synthesis_worker(bot, guild):
                     break
                 else:
                     retry_count += 1
-                    await asyncio.sleep(1)  # 少し待機してから次の処理へ
+                    # await asyncio.sleep(1)  # 少し待機してから次の処理へ
                     try:
                         os.remove(tmp_path)
                     except Exception as e:
@@ -106,13 +118,17 @@ async def vp_play_work(bot, guild):
                     print(f"一時ファイル削除エラー: {ex}")
                 if e:
                     print(f"再生時エラー: {e}")
-                    queue.task_done()
                     # 次の音声を再生
+                queue.task_done()
                 bot.loop.call_soon_threadsafe(play_finished.set)
 
-            voice_client.play(source, after=after_play)
+            try:
+                voice_client.play(source, after=after_play)
+            except Exception as e:
+                print(f"再生開始エラー: {e}")
+                after_play(e)
+                continue
             await play_finished.wait()
-            queue.task_done()
             if queue.empty():
                 break
     finally:

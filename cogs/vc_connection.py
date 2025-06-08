@@ -61,6 +61,21 @@ class VCConnection(commands.Cog):
         if after.channel == before.channel:
             return
         
+        # ボイスチャンネルに参加していない場合、サーバー設定に応じて自動で参加する
+        if not voice_client and server_settings[str(member.guild.id)].get("auto_connect", {}).get(after.channel.id, None):
+                voice_channel = after.channel.id
+                text_channel = member.guild.get_channel(server_settings[str(member.guild.id)]["auto_connect"][voice_channel])
+
+                # チャンネルが存在しない場合はスキップ
+                if not member.guild.get_channel(voice_channel.id) or not member.guild.get_channel(text_channel.id):
+                    return
+
+                # 設定されているボイスチャンネルに人間が1人参加したとき
+                if voice_channel.members and not all(member.bot for member in voice_channel.members):
+                    await voice_channel.connect()
+                    joined_text_channels[member.guild.id] = text_channel.id
+                    await text_channel.send(f"ボイスチャンネルに自動で参加しました。")
+        
         if voice_client and ((before.channel and before.channel.id == voice_client.channel.id) or (after.channel and after.channel.id == voice_client.channel.id)):
             text_channel=bot.get_channel(joined_text_channels.get(member.guild.id))
 
@@ -96,25 +111,6 @@ class VCConnection(commands.Cog):
 
                     joined_text_channels.pop(member.guild.id, None)
                     return
-
-        else:
-            # ボイスチャンネルに参加していない場合、サーバー設定に応じて自動で参加する
-            if server_settings[str(member.guild.id)].get("auto_connect", {}):
-                for voice_id, text_id in server_settings[str(member.guild.id)].get("auto_connect", {}).items():
-                    voice_channel = member.guild.get_channel(int(voice_id))
-                    text_channel = member.guild.get_channel(text_id)
-
-                    # チャンネルが存在しない場合はスキップ
-                    if not voice_channel or not text_channel:
-                        continue
-
-                    # 設定されているボイスチャンネルに人間が1人参加したとき
-                    if voice_channel.members and not all(member.bot for member in voice_channel.members):
-                        await voice_channel.connect()
-                        joined_text_channels[member.guild.id] = text_id
-                        await text_channel.send(f"ボイスチャンネルに自動で参加しました。")
-
-            return
         
 
 async def setup(bot):

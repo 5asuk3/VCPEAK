@@ -9,15 +9,16 @@ from config import dictionary, dict_pattern
 
 
 def get_url_title(url):
-    try:
-        response = requests.get(url, timeout=5)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, "html.parser")
-        title = soup.title.string.strip() if soup.title and soup.title.string else "タイトルなし"
-        return title
-    except Exception as e:
-        logging.error(f"URLのタイトル取得に失敗: {url} - {e}")
-        return "タイトル取得失敗"
+    # try:
+    #     response = requests.get(url, timeout=5)
+    #     response.raise_for_status()
+    #     soup = BeautifulSoup(response.text, "html.parser")
+    #     title = soup.title.string.strip() if soup.title and soup.title.string else "タイトルなし"
+    #     return title
+    # except Exception as e:
+    #     logging.error(f"URLのタイトル取得に失敗: {url} - {e}")
+    #     return "タイトル取得失敗"
+    return "Webページ"
     
 
 def replace_url(text):

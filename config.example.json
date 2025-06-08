@@ -7,8 +7,8 @@
     
     "server_default": {
         "volume": 30,
-        "auto_connect": 0,
-        "auto_disconect": true,
+        "auto_connect": {},
+        "auto_disconnect": true,
         "announce_join_leave": true
     },
 
