@@ -10,6 +10,7 @@ synthesis_queue = collections.defaultdict(asyncio.Queue) # 音声合成キュー
 play_queue = collections.defaultdict(asyncio.Queue)  # 再生キュー
 playing_flags = collections.defaultdict(lambda: False)  # 再生中フラグ
 synthesis_flags = collections.defaultdict(lambda: False)  # 音声合成中フラグ
+synthesize_lock = asyncio.Lock()  # 音声合成のロック
 
 
 async def vp_play(bot, text, guild, user):
@@ -33,17 +34,19 @@ async def vp_synthesis_worker(bot, guild):
             while retry_count < 3:
                 with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
                     tmp_path=tmp.name
-
-                result = await asyncio.to_thread(
-                        synthesize_vp,
-                        VOICEPEAK_PATH,
-                        text,
-                        tmp_path,
-                        user_set['narrator'],
-                        joined_emotion,
-                        user_set['speed'],
-                        user_set['pitch']
-                    )
+                
+                # 音声合成を実行(VOICEPEAKが同時に1つしか実行できないため、ロックを使用)
+                async with synthesize_lock:
+                    result = await asyncio.to_thread(
+                            synthesize_vp,
+                            VOICEPEAK_PATH,
+                            text,
+                            tmp_path,
+                            user_set['narrator'],
+                            joined_emotion,
+                            user_set['speed'],
+                            user_set['pitch']
+                        )
                 
                 if result == 0:        
                     await play_queue[guild.id].put(tmp_path)
@@ -53,7 +56,7 @@ async def vp_synthesis_worker(bot, guild):
                     break
                 else:
                     retry_count += 1
-                    # await asyncio.sleep(1)  # 少し待機してから次の処理へ
+                    await asyncio.sleep(1)  # 少し待機してから次の処理へ
                     try:
                         os.remove(tmp_path)
                     except Exception as e:
