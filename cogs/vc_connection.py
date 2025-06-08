@@ -61,13 +61,20 @@ class VCConnection(commands.Cog):
         if after.channel == before.channel:
             return
         
-        # ボイスチャンネルに参加していない場合、サーバー設定に応じて自動で参加する
-        if not voice_client and server_settings[str(member.guild.id)].get("auto_connect", {}).get(after.channel.id, None):
-                voice_channel = after.channel.id
-                text_channel = member.guild.get_channel(server_settings[str(member.guild.id)]["auto_connect"][voice_channel])
+        # ボイスチャンネルに参加しておらず、参加したチャンネルがありそのチャンネルの自動参加設定が有効の場合
+        if (not voice_client
+             and after.channel
+             and server_settings[str(member.guild.id)].get("auto_connect", {})
+             and server_settings[str(member.guild.id)]["auto_connect"].get(str(after.channel.id), None)
+            ):
+                voice_channel = after.channel
+                text_channel_id = server_settings[str(member.guild.id)]["auto_connect"].get(str(after.channel.id), None)
+                text_channel = member.guild.get_channel(text_channel_id)
+
+                print (f"Voice Channel: {voice_channel}, Text Channel: {text_channel}")
 
                 # チャンネルが存在しない場合はスキップ
-                if not member.guild.get_channel(voice_channel.id) or not member.guild.get_channel(text_channel.id):
+                if not voice_channel or not text_channel:
                     return
 
                 # 設定されているボイスチャンネルに人間が1人参加したとき
