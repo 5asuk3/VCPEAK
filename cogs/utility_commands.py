@@ -56,6 +56,21 @@ class UtilityCommands(commands.Cog):
         embed.description = f"現在の応答速度: {latency}ms"
         await ctx.send(embed=embed)
 
+    @commands.hybrid_command(name="info", description="Botの情報を表示")
+    async def info(self, ctx):
+        """Botの情報を表示"""
+        bot = self.bot
+        embed = EMBED_DEFAULT.copy()
+        embed.title = "VCPEAK INFO"
+        embed.description = ("VCPEAKは、ボイスチャンネルでのTTS(Text To Speech)を提供するDiscord Botです。\n"
+            "VOICEPEAKの最新AI音声合成技術を用いた高品質な音声でテキストを読み上げることが出来ます。\n"
+            "\n"
+            "`/connect`でボイスチャンネルへ参加、`/disconnect`でボイスチャンネルから切断できます。\n"
+            "その他コマンドの簡易ヘルプは`/help`で確認できます。\n"
+            "\n"
+            "詳細は https://github.com/5asuk3/vcpeak へ。\n")
+        embed.set_thumbnail(url=bot.user.display_avatar.url) if bot.user else None
+        await ctx.send(embed=embed)
 
     @commands.hybrid_command(name="help", description="ヘルプメッセージを表示")
     async def help_command(self, ctx):
