@@ -56,6 +56,7 @@ class UtilityCommands(commands.Cog):
         embed.add_field(name="/server-config", value="サーバー設定関連のコマンド", inline=False)
         embed.add_field(name="/restart", value="ボットの再起動(要注意！)", inline=False)
         await ctx.send(embed=embed)
+        return
 
 
     @commands.hybrid_command(name="reload", description="モジュールの再読み込み")
@@ -105,13 +106,12 @@ class UtilityCommands(commands.Cog):
         os.execv(sys.executable, [sys.executable] + sys.argv)  # プロセスを再起動
         
 
-    @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
+    async def cog_command_error(self, ctx, error):
         if await handle_check_fauilure(ctx, error, EMBED_DEFAULT):
             return
         else:
             raise error  # 他のエラーは通常通り
-
+        
 
 async def setup(bot):
     await bot.add_cog(UtilityCommands(bot))

@@ -17,7 +17,6 @@ class TTS(commands.Cog):
         # コマンドは読み上げない
         ctx = await bot.get_context(message)
         if ctx.valid:
-            await bot.process_commands(message)
             return
         
         # BotのメッセージとVCに参加していない場合は無視
