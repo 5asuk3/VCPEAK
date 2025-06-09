@@ -1,5 +1,6 @@
 emoji
 requests
 alkana
+romkan
 Beautifulsoup4
 discord.py[voice]

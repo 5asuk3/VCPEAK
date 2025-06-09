@@ -5,6 +5,7 @@ import emoji
 import unicodedata
 import requests
 import alkana
+import romkan
 from bs4 import BeautifulSoup
 from config import EMBEDED_DICTIONALY, dictionary, dict_pattern
 
@@ -59,6 +60,8 @@ def replace_word(text):
 
     # 英語の単語をカタカナに変換
     text = re.sub(r'[a-z]+|[A-Z][a-z]*', repl_eng, text)
+
+    text = romkan.to_hiragana(text)  # ローマ字をひらがなに変換
 
     # 半角文字を全角に変換(正規化)
     text = unicodedata.normalize('NFKC', text)
