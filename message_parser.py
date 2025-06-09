@@ -4,21 +4,21 @@ import discord
 import emoji
 import unicodedata
 import requests
+import alkana
 from bs4 import BeautifulSoup
 from config import dictionary, dict_pattern
 
 
 def get_url_title(url):
-    # try:
-    #     response = requests.get(url, timeout=5)
-    #     response.raise_for_status()
-    #     soup = BeautifulSoup(response.text, "html.parser")
-    #     title = soup.title.string.strip() if soup.title and soup.title.string else "タイトルなし"
-    #     return title
-    # except Exception as e:
-    #     logging.error(f"URLのタイトル取得に失敗: {url} - {e}")
-    #     return "タイトル取得失敗"
-    return "Webページ"
+    try:
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, "html.parser")
+        title = soup.title.string.strip() if soup.title and soup.title.string else "タイトルなし"
+        return title[:20] + "、以下略。"
+    except Exception as e:
+        logging.error(f"URLのタイトル取得に失敗: {url} - {e}")
+        return "タイトル取得失敗"
     
 
 def replace_url(text):
@@ -43,7 +43,17 @@ def replace_word(text):
     def repl(match):
         key= match.group(0)
         return dictionary.get(key, key)
+
+    # 英語の単語をカタカナに変換
+    def repl_eng(match):
+        key= match.group(0)
+        return str(alkana.get_kana(key) or key)
+
+    # 辞書に基づいて単語を置換
     text = dict_pattern[0].sub(repl, text) if dict_pattern[0] else text
+
+    # 英語の単語をカタカナに変換
+    text = re.sub(r'[a-z]+|[A-Z][a-z]*', repl_eng, text)
 
     # 半角文字を全角に変換(正規化)
     text = unicodedata.normalize('NFKC', text)

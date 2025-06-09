@@ -1,4 +1,5 @@
 emoji
 requests
+alkana
 Beautifulsoup4
 discord.py[voice]
