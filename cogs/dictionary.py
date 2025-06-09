@@ -30,19 +30,6 @@ class Dictionary(commands.Cog):
         embed.description = "ことば一覧です。以下の単語は、読み上げ時に置き換えられます。"
         for key, value in dictionary.items():
             embed.add_field(name=key, value=f"⤷{value}", inline=True)
-        
-        await ctx.send(embed=embed)
-    @dict_config.command(name="list-test", description="ことばリストの内容を表示")
-    async def show_dict1(self, ctx):
-        """ことばリストの内容を表示"""
-        embed= EMBED_DEFAULT.copy()
-        embed.title = "ことばリスト"
-        embed.description = "ことば一覧です。以下の単語は、読み上げ時に置き換えられます。"
-        for key, value in EMBEDED_DICTIONALY.items():
-            embed.add_field(name=key, value=f"⤷{value}", inline=True)
-        
-        await ctx.send(embed=embed)
-        await ctx.send(f"dict_pattern[0]: {dict_pattern[0]}\ndict_pattern[1]: {dict_pattern[1]}")
 
 
     @dict_config.command(name="add", description="ことばリストに単語を追加")
