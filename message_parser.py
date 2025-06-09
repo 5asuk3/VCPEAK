@@ -44,7 +44,7 @@ def replace_word(text):
     def repl(match):
         key= match.group(0)
         for pattern, value in dictionary.items():
-            if re.fullmatch(pattern, key):
+            if re.fullmatch(pattern, key, flags=re.IGNORECASE):
                 # print(f"{pattern}を{value}に置換")
                 return str(value)
         return key
