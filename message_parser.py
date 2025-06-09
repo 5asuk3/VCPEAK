@@ -6,7 +6,7 @@ import unicodedata
 import requests
 import alkana
 from bs4 import BeautifulSoup
-from config import dictionary, dict_pattern
+from config import EMBEDED_DICTIONALY, dictionary, dict_pattern
 
 
 def get_url_title(url):
@@ -42,7 +42,11 @@ def replace_word(text):
     # 辞書に基づいて単語を置換
     def repl(match):
         key= match.group(0)
-        return dictionary.get(key, key)
+        return str(dictionary.get(key, key))
+    
+    def repl_embed(match):
+        key= match.group(0).lower()
+        return str(EMBEDED_DICTIONALY.get(key, key))
 
     # 英語の単語をカタカナに変換
     def repl_eng(match):
@@ -50,6 +54,7 @@ def replace_word(text):
         return str(alkana.get_kana(key) or key)
 
     # 辞書に基づいて単語を置換
+    text = dict_pattern[1].sub(repl_embed, text) if dict_pattern[1] else text
     text = dict_pattern[0].sub(repl, text) if dict_pattern[0] else text
 
     # 英語の単語をカタカナに変換

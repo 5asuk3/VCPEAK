@@ -1,7 +1,7 @@
 from discord import app_commands
 from discord.ext import commands
 from utils import save_json
-from config import EMBED_DEFAULT, EMBED_COLOR_ERROR, dictionary
+from config import EMBED_DEFAULT, EMBED_COLOR_ERROR, dictionary, EMBEDED_DICTIONALY, dict_pattern
 from config import update_dict_pattern
 
 
@@ -32,6 +32,17 @@ class Dictionary(commands.Cog):
             embed.add_field(name=key, value=f"⤷{value}", inline=True)
         
         await ctx.send(embed=embed)
+    @dict_config.command(name="list-test", description="ことばリストの内容を表示")
+    async def show_dict1(self, ctx):
+        """ことばリストの内容を表示"""
+        embed= EMBED_DEFAULT.copy()
+        embed.title = "ことばリスト"
+        embed.description = "ことば一覧です。以下の単語は、読み上げ時に置き換えられます。"
+        for key, value in EMBEDED_DICTIONALY.items():
+            embed.add_field(name=key, value=f"⤷{value}", inline=True)
+        
+        await ctx.send(embed=embed)
+        await ctx.send(f"dict_pattern[0]: {dict_pattern[0]}\ndict_pattern[1]: {dict_pattern[1]}")
 
 
     @dict_config.command(name="add", description="ことばリストに単語を追加")
@@ -48,7 +59,7 @@ class Dictionary(commands.Cog):
         
         dictionary[from_word] = to_word
         save_json("dict.json", dictionary)
-        update_dict_pattern()  # ことばリストのパターンを更新
+        update_dict_pattern(0, dictionary)  # ことばリストのパターンを更新
         embed.description = f"単語「{from_word}」をことばリストに追加しました。読み: {to_word}"
         await ctx.send(embed=embed)
 
@@ -68,7 +79,7 @@ class Dictionary(commands.Cog):
         
         del dictionary[word]
         save_json("dict.json", dictionary)
-        update_dict_pattern()  # ことばリストのパターンを更新
+        update_dict_pattern(0, dictionary)  # ことばリストのパターンを更新
         embed.description = f"単語「{word}」をことばリストから削除しました。"
         await ctx.send(embed=embed)
 
