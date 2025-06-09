@@ -3,6 +3,7 @@ import asyncio
 import tempfile
 import collections
 import discord
+from message_parser import parse_message
 from vp_wrapper import synthesize_vp
 from config import VOICEPEAK_PATH, server_settings, user_settings, SERVER_DEFAULT, USER_DEFAULT, NARRATORS, EMOTIONS, joined_text_channels, EMBED_DEFAULT, EMBED_COLOR_ERROR
 

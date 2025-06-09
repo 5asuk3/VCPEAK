@@ -141,9 +141,7 @@ def pre_parse_message(message : discord.Message):
     return "、".join(msg_componets)
 
 
-def parse_message(message : discord.Message):
-    # Discord内の機能にまつわるパースを行う
-    text = pre_parse_message(message)
+def parse_message(text):
     # URLの置換
     text = replace_url(text)
     # 絵文字の置換

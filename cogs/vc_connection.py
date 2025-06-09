@@ -1,6 +1,7 @@
 import itertools
 from discord.ext import commands
 from config import SERVER_DEFAULT, server_settings, joined_text_channels, EMBED_DEFAULT, EMBED_COLOR_ERROR
+from message_parser import parse_message
 from vp_service import vp_play
 
 
@@ -83,7 +84,10 @@ class VCConnection(commands.Cog):
                 if voice_channel.members and not all(member.bot for member in voice_channel.members):
                     await voice_channel.connect()
                     joined_text_channels[member.guild.id] = text_channel.id
-                    await text_channel.send(f"ボイスチャンネルに自動で参加しました。")
+                    embed = EMBED_DEFAULT.copy()
+                    embed.title = "自動参加"
+                    embed.description = "ボイスチャンネルに自動で参加しました。"
+                    await text_channel.send(embed=embed)
         
         if voice_client and ((before.channel and before.channel.id == voice_client.channel.id) or (after.channel and after.channel.id == voice_client.channel.id)):
             text_channel=bot.get_channel(joined_text_channels.get(member.guild.id))
@@ -106,7 +110,8 @@ class VCConnection(commands.Cog):
                         await text_channel.send(f":inbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルに参加しました。")
                         text=f"{member.display_name}がボイスチャンネルに参加しました。"
                 # サーバー設定に応じて読み上げ
-                if server_settings[str(member.guild.id)].get('announce_join_leave', SERVER_DEFAULT['announce_join_leave']):
+                if server_settings[str(member.guild.id)].get('announce_join_leave', SERVER_DEFAULT['announce_join_leave']):                    
+                    text=parse_message(text)
                     await vp_play(bot, text, member.guild, bot.user)
 
             # ボイスチャンネルに参加者がいない場合、設定に応じて自動で退出する

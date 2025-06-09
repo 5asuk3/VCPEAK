@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from config import joined_text_channels
-from message_parser import parse_message
+from message_parser import pre_parse_message, parse_message
 from vp_service import vp_play
 
 
@@ -29,8 +29,10 @@ class TTS(commands.Cog):
         # ボイスチャンネルに接続している場合のみ読み上げ
         voice_client = message.guild.voice_client
         if voice_client:
-            parsed_message=parse_message(message)
-            await vp_play(bot, parsed_message, message.guild, message.author)
+            text = pre_parse_message(message)
+            text = parse_message(text)
+            await vp_play(bot, text, message.guild, message.author)
+
 
 
 async def setup(bot):
