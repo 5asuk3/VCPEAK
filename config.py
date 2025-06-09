@@ -7,7 +7,7 @@ from utils import load_json
 
 def update_dict_pattern():
     keys = [k for k in dictionary if k]  # 空文字列を除外
-    dict_pattern[0] = re.compile("|".join(k for k in sorted(keys, key=len, reverse=True)), flags=re.IGNORECASE) if keys else None
+    dict_pattern[0] = re.compile("|".join(k for k in sorted(keys, key=len, reverse=True))) if keys else None
 
 
 # 設定の読み込み
