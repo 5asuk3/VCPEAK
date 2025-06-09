@@ -1,7 +1,9 @@
 {
-    "0000000000000000000": {
+    "999999999999999999": {
         "volume": 50,
-        "auto_connect": {},
+        "auto_connect": {
+            "999999999999999999": 999999999999999999
+        },
         "auto_disconnect": true,
         "announce_join_leave": true
     }
