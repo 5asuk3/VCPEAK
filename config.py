@@ -5,9 +5,9 @@ import discord
 from utils import load_json
 
 
-def update_dict_pattern(i, dictionary):
+def update_dict_pattern():
     keys = [k for k in dictionary if k]  # 空文字列を除外
-    dict_pattern[i] = re.compile("|".join(re.escape(k) for k in sorted(keys, key=len, reverse=True)), flags=re.IGNORECASE) if keys else None
+    dict_pattern[0] = re.compile("|".join(k for k in sorted(keys, key=len, reverse=True)), flags=re.IGNORECASE) if keys else None
 
 
 # 設定の読み込み
@@ -29,10 +29,11 @@ EMBEDED_DICTIONALY = {
     "github": "ぎっとはぶ",
     "connect": "こねくと",
     "disconnect": "でぃすこねくと"
-    }  # 統合辞書
+    }  # 埋め込み辞書
 dict_pattern: list[Optional[Pattern[str]]] = [None]*2 # 辞書の正規表現パターンを格納するリスト（リストとして定義）
-update_dict_pattern(0, dictionary) # 辞書の正規表現パターンを更新
-update_dict_pattern(1, EMBEDED_DICTIONALY) # 統合辞書の正規表現パターンを更新
+update_dict_pattern() # 辞書の正規表現パターンを更新
+# 埋め込み辞書の正規表現パターンを更新
+dict_pattern[1] = re.compile("|".join(k for k in sorted(EMBEDED_DICTIONALY.keys(), key=len, reverse=True)), flags=re.IGNORECASE) if EMBEDED_DICTIONALY.keys() else None
 
 EMBED_COLOR_NORMAL = 0x4a913c  # デフォルトの埋め込みカラー
 EMBED_COLOR_ERROR = 0xFF0000  # エラー用の埋め込みカラー

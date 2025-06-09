@@ -43,7 +43,11 @@ def replace_word(text):
     # 辞書に基づいて単語を置換
     def repl(match):
         key= match.group(0)
-        return str(dictionary.get(key, key))
+        for pattern, value in dictionary.items():
+            if re.fullmatch(pattern, key, flags=re.IGNORECASE):
+                # print(f"{pattern}を{value}に置換")
+                return str(value)
+        return key
     
     def repl_embed(match):
         key= match.group(0).lower()
@@ -57,6 +61,10 @@ def replace_word(text):
     # 辞書に基づいて単語を置換
     text = dict_pattern[1].sub(repl_embed, text) if dict_pattern[1] else text
     text = dict_pattern[0].sub(repl, text) if dict_pattern[0] else text
+    # if dict_pattern[1]:
+    #     print(f"dict_pattern[1] に一致する部分: {dict_pattern[1].findall(text)}")
+    # if dict_pattern[0]:
+    #     print(f"dict_pattern[0] に一致する部分: {dict_pattern[0].findall(text)}")
 
     # 英語の単語をカタカナに変換
     text = re.sub(r'[a-z]+|[A-Z][a-z]*', repl_eng, text)

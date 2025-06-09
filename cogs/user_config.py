@@ -23,7 +23,9 @@ class UserConfig(commands.Cog):
 
     async def emotion_autocomplete(self, interaction, current: str):
         """感情のオートコンプリート"""
-        narrator= interaction.user_settings.get('narrator')
+        if not user_settings.get(str(interaction.user.id)):
+            return []
+        narrator = user_settings[str(interaction.user.id)].get('narrator', None)
         if narrator not in NARRATORS:
             print(f"無効なキャラクター: {narrator}")
             return []
@@ -78,8 +80,8 @@ class UserConfig(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    @app_commands.autocomplete(emotion=emotion_autocomplete)
     @user_config.command(name="emotion", description="感情を設定")
+    @app_commands.autocomplete(emotion=emotion_autocomplete)
     async def set_emotion(self, ctx, emotion: str="", value: int=0):
         """感情を設定"""
         embed= EMBED_DEFAULT.copy()

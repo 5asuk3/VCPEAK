@@ -12,7 +12,7 @@ class Dictionary(commands.Cog):
 
     async def dict_autocomplete(self, interaction, current: str):
         """ことばリストのオートコンプリート"""
-        return [app_commands.Choice(name=word, value=word) for word in dictionary if current.lower() in word.lower()]
+        return [app_commands.Choice(name=word, value=word) for word in dictionary.keys() if current.lower() in word.lower()]
 
 
     # Dictionary Commands
@@ -30,6 +30,7 @@ class Dictionary(commands.Cog):
         embed.description = "ことば一覧です。以下の単語は、読み上げ時に置き換えられます。"
         for key, value in dictionary.items():
             embed.add_field(name=key, value=f"⤷{value}", inline=True)
+        await ctx.send(embed=embed)
 
 
     @dict_config.command(name="add", description="ことばリストに単語を追加")
@@ -46,7 +47,7 @@ class Dictionary(commands.Cog):
         
         dictionary[from_word] = to_word
         save_json("dict.json", dictionary)
-        update_dict_pattern(0, dictionary)  # ことばリストのパターンを更新
+        update_dict_pattern()  # ことばリストのパターンを更新
         embed.description = f"単語「{from_word}」をことばリストに追加しました。読み: {to_word}"
         await ctx.send(embed=embed)
 
@@ -66,7 +67,7 @@ class Dictionary(commands.Cog):
         
         del dictionary[word]
         save_json("dict.json", dictionary)
-        update_dict_pattern(0, dictionary)  # ことばリストのパターンを更新
+        update_dict_pattern()  # ことばリストのパターンを更新
         embed.description = f"単語「{word}」をことばリストから削除しました。"
         await ctx.send(embed=embed)
 
