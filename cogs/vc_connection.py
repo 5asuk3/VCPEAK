@@ -60,8 +60,8 @@ class VCConnection(commands.Cog):
         bot = self.bot
         voice_client = member.guild.voice_client
 
-        # 参加していないボイスチャンネルやチャンネル間の移動がない場合は何もしない
-        if after.channel == before.channel:
+        # ボット本人もしくはチャンネル間の移動がない場合は何もしない
+        if after.channel == before.channel or member.id == bot.user.id:
             return
         
         # ボイスチャンネルに参加しておらず、参加したチャンネルがありそのチャンネルの自動参加設定が有効の場合
@@ -84,6 +84,8 @@ class VCConnection(commands.Cog):
                 if voice_channel.members and not all(member.bot for member in voice_channel.members):
                     await voice_channel.connect()
                     joined_text_channels[member.guild.id] = text_channel.id
+                    if server_settings[str(member.guild.id)].get('join_leave_notification', SERVER_DEFAULT['join_leave_notification']):
+                        await text_channel.send(f":inbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルに参加しました。")
                     embed = EMBED_DEFAULT.copy()
                     embed.title = "自動参加"
                     embed.description = "ボイスチャンネルに自動で参加しました。"
@@ -92,25 +94,25 @@ class VCConnection(commands.Cog):
         if voice_client and ((before.channel and before.channel.id == voice_client.channel.id) or (after.channel and after.channel.id == voice_client.channel.id)):
             text_channel=bot.get_channel(joined_text_channels.get(member.guild.id))
 
-            # ボイスチャンネルの参加・退出・移動を検知
-            if after.channel != before.channel and member.id != bot.user.id:
-                text = ""
-                text_channel=bot.get_channel(joined_text_channels.get(member.guild.id))
-                if before.channel is None and after.channel is not None:
-                    await text_channel.send(f":inbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルに参加しました。")
-                    text=f"{member.display_name}がボイスチャンネルに参加しました。"
-                elif before.channel is not None and after.channel is None:
-                    await text_channel.send(f":outbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルから退出しました。")
-                    text=f"{member.display_name}がボイスチャンネルから退出しました。"
-                elif before.channel is not None and after.channel is not None:
-                    if before.channel.id == voice_client.channel.id:
-                        await text_channel.send(f":outbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルを移動しました。")
-                        text=f"{member.display_name}がボイスチャンネルを移動しました。"
-                    elif after.channel.id == voice_client.channel.id:
+            # 設定が有効な場合、ボイスチャンネルの参加・退出・移動を検知
+            if server_settings[str(member.guild.id)].get('join_leave_notification', SERVER_DEFAULT['join_leave_notification']):                    
+
+                if after.channel != before.channel and member.id != bot.user.id:
+                    text = ""
+                    text_channel=bot.get_channel(joined_text_channels.get(member.guild.id))
+                    if before.channel is None and after.channel is not None:
                         await text_channel.send(f":inbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルに参加しました。")
                         text=f"{member.display_name}がボイスチャンネルに参加しました。"
-                # サーバー設定に応じて読み上げ
-                if server_settings[str(member.guild.id)].get('announce_join_leave', SERVER_DEFAULT['announce_join_leave']):                    
+                    elif before.channel is not None and after.channel is None:
+                        await text_channel.send(f":outbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルから退出しました。")
+                        text=f"{member.display_name}がボイスチャンネルから退出しました。"
+                    elif before.channel is not None and after.channel is not None:
+                        if before.channel.id == voice_client.channel.id:
+                            await text_channel.send(f":outbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルを移動しました。")
+                            text=f"{member.display_name}がボイスチャンネルを移動しました。"
+                        elif after.channel.id == voice_client.channel.id:
+                            await text_channel.send(f":inbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルに参加しました。")
+                            text=f"{member.display_name}がボイスチャンネルに参加しました。"
                     text=parse_message(text)
                     await vp_play(bot, text, member.guild, bot.user)
 

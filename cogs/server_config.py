@@ -51,7 +51,7 @@ class ServerConfig(commands.Cog):
         else :
             embed.add_field(name="自動参加チャンネル", value="なし", inline=False)
         embed.add_field(name="自動退出", value=settings['auto_disconnect'], inline=True)
-        embed.add_field(name="入退出通知の読み上げ", value=settings['announce_join_leave'], inline=True)
+        embed.add_field(name="入退出通知の読み上げ", value=settings['join_leave_notifaication'], inline=True)
         embed.add_field(name="音量", value=settings['volume'], inline=True)
         
         await ctx.send(embed=embed) 
@@ -126,15 +126,15 @@ class ServerConfig(commands.Cog):
 
 
     @is_owner_or_admin()
-    @server_config.command(name="join-leave-announcement", description="ボイスチャンネルの参加・退出通知を設定")
-    async def set_announcement(self, ctx, value: bool=SERVER_DEFAULT['announce_join_leave']):
+    @server_config.command(name="join-leave-notice", description="ボイスチャンネルの参加・退出通知を設定")
+    async def set_vc_notify(self, ctx, value: bool=SERVER_DEFAULT['join_leave_notification']):
         """ボイスチャンネルの参加・退出通知を設定"""
         embed= EMBED_DEFAULT.copy()
         embed.title = f"{ctx.guild.name}のサーバー設定"
 
         server_id=str(ctx.guild.id)
         self.ensure_server_settings(str(server_id))
-        server_settings[str(server_id)]["announce_join_leave"] = value
+        server_settings[str(server_id)]["join_leave_notification"] = value
         save_json("servers.json", server_settings)
         
         embed.description = f"ボイスチャンネルの参加・退出通知を{'有効' if value else '無効'}にしました。"
