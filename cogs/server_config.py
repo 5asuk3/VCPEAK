@@ -1,3 +1,4 @@
+from discord import app_commands
 from discord.ext import commands
 from utils import save_json, is_owner_or_admin, handle_check_fauilure
 from config import EMBED_DEFAULT, EMBED_COLOR_ERROR, server_settings, SERVER_DEFAULT
@@ -59,6 +60,7 @@ class ServerConfig(commands.Cog):
 
     @is_owner_or_admin()
     @server_config.command(name="volume", description="ボイスチャンネルの音量を設定")
+    @app_commands.describe(volume="サーバー全体での読み上げ音量(0～200)")
     async def set_volume(self, ctx, volume: int=SERVER_DEFAULT['volume']):
         """ボイスチャンネルの音量を設定"""
         embed= EMBED_DEFAULT.copy()
@@ -111,6 +113,7 @@ class ServerConfig(commands.Cog):
 
     @is_owner_or_admin()
     @server_config.command(name="auto-disconnect", description="ボイスチャンネルからの自動退出を設定")
+    @app_commands.describe(value="ボイスチャンネルからの自動退出を有効にするかどうか(True/False)")
     async def set_auto_disconnect(self, ctx, value: bool=SERVER_DEFAULT['auto_disconnect']):
         """ボイスチャンネルからの自動退出を設定"""
         embed= EMBED_DEFAULT.copy()
@@ -127,6 +130,7 @@ class ServerConfig(commands.Cog):
 
     @is_owner_or_admin()
     @server_config.command(name="join-leave-notice", description="ボイスチャンネルの参加・退出通知を設定")
+    @app_commands.describe(value="ボイスチャンネルの参加・退出通知を有効にするかどうか(True/False)")
     async def set_vc_notify(self, ctx, value: bool=SERVER_DEFAULT['join_leave_notification']):
         """ボイスチャンネルの参加・退出通知を設定"""
         embed= EMBED_DEFAULT.copy()

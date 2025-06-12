@@ -60,6 +60,7 @@ class UserConfig(commands.Cog):
 
     @user_config.command(name="narrator", description="キャラクターを設定")
     @app_commands.autocomplete(narrator=narrator_autocomplete)
+    @app_commands.describe(narrator="設定するキャラクターの名前")
     async def set_narrator(self, ctx, narrator: str=USER_DEFAULT['narrator']):
         """キャラクターを設定"""
         embed= EMBED_DEFAULT.copy()
@@ -82,6 +83,7 @@ class UserConfig(commands.Cog):
 
     @user_config.command(name="emotion", description="感情を設定")
     @app_commands.autocomplete(emotion=emotion_autocomplete)
+    @app_commands.describe(emotion="設定する感情", value="感情の値(0～100)")
     async def set_emotion(self, ctx, emotion: str="", value: int=0):
         """感情を設定"""
         embed= EMBED_DEFAULT.copy()
@@ -109,6 +111,7 @@ class UserConfig(commands.Cog):
 
 
     @user_config.command(name="speed", description="音声の速度を設定")
+    @app_commands.describe(speed="読み上げの速度(50～200)")
     async def set_speed(self, ctx, speed: int=USER_DEFAULT['speed']):
         embed= EMBED_DEFAULT.copy()
         embed.title = f"{ctx.author.display_name}のユーザー設定"
@@ -128,6 +131,7 @@ class UserConfig(commands.Cog):
 
 
     @user_config.command(name="pitch", description="音声のピッチを設定")
+    @app_commands.describe(pitch="読み上げのピッチ(-300～300)")
     async def set_pitch(self, ctx, pitch: int=USER_DEFAULT['pitch']):
         embed= EMBED_DEFAULT.copy()
         embed.title = f"{ctx.author.display_name}のユーザー設定"

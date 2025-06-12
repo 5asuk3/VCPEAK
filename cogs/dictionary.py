@@ -34,6 +34,10 @@ class Dictionary(commands.Cog):
 
 
     @dict_config.command(name="add", description="ことばリストに単語を追加")
+    @app_commands.describe(
+        from_word="置き換えたい単語",
+        to_word="読ませたい読み"
+    )
     async def add_word(self, ctx, from_word: str, to_word: str):
         """ことばリストに単語を追加"""
         embed= EMBED_DEFAULT.copy()
@@ -53,6 +57,7 @@ class Dictionary(commands.Cog):
 
 
     @dict_config.command(name="delete", description="ことばリストから単語を削除")
+    @app_commands.describe(word="削除したい単語")
     @app_commands.autocomplete(word=dict_autocomplete)
     async def delete_word(self, ctx, word: str):
         """ことばリストから単語を削除"""
