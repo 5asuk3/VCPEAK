@@ -21,20 +21,22 @@ class VCConnection(commands.Cog):
                 if ctx.guild.voice_client.channel != channel:
                     await ctx.guild.voice_client.move_to(channel)
                     joined_text_channels[ctx.guild.id] = ctx.channel.id
-                    await ctx.send("ボイスチャンネルを移動しました。")
+                    await ctx.send(":incoming_envelope:ボイスチャンネルを移動しました。")
                     return
                 else:
                     await ctx.voice_client.disconnect()
                     await channel.connect()
-                    await ctx.send("すでにボイスチャンネルに参加していたため、再参加しました。")
+                    await ctx.voice_client.guild.change_voice_state(channel=channel, self_mute=False, self_deaf=True)
+                    await ctx.send(":arrows_counterclockwise:すでにボイスチャンネルに参加していたため、再参加しました。")
                     joined_text_channels[ctx.guild.id] = ctx.channel.id
                     return
             await channel.connect()
+            await ctx.voice_client.guild.change_voice_state(channel=channel, self_mute=False, self_deaf=True)
             joined_text_channels[ctx.guild.id] = ctx.channel.id
-            await ctx.send("ボイスチャンネルに参加しました。")
+            await ctx.send(":speech_balloon:ボイスチャンネルに参加しました。")
         else:
             embed = EMBED_DEFAULT.copy()
-            embed.title = "参加エラー"
+            embed.title = ":warning:参加エラー"
             embed.description = "ボイスチャンネルに参加できません。\nボイスチャンネルに参加してからコマンドを実行してください。\nすでに参加している場合は、botがそのチャンネルに参加する権限があることを確認してください。"
             embed.color = EMBED_COLOR_ERROR
             await ctx.send(embed=embed)
@@ -45,11 +47,11 @@ class VCConnection(commands.Cog):
         """ボイスチャンネルから退出"""
         if ctx.voice_client:
             await ctx.voice_client.disconnect()
-            await ctx.send("ボイスチャンネルから退出しました。")
+            await ctx.send(":zzz:ボイスチャンネルから退出しました。")
             joined_text_channels.pop(ctx.guild.id, None)
         else:
             embed = EMBED_DEFAULT.copy()
-            embed.title = "退出エラー"
+            embed.title = ":warning:退出エラー"
             embed.description = "ボイスチャンネルに参加していません。"
             embed.color = EMBED_COLOR_ERROR
             await ctx.send(embed=embed)
@@ -82,12 +84,13 @@ class VCConnection(commands.Cog):
 
                 # 設定されているボイスチャンネルに人間が1人参加したとき
                 if voice_channel.members and not all(member.bot for member in voice_channel.members):
-                    await voice_channel.connect()
+                    voice_client = await voice_channel.connect()
+                    await voice_client.guild.change_voice_state(channel=voice_channel, self_mute=False, self_deaf=True)
                     joined_text_channels[member.guild.id] = text_channel.id
                     if server_settings[str(member.guild.id)].get('join_leave_notification', SERVER_DEFAULT['join_leave_notification']):
                         await text_channel.send(f":inbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルに参加しました。")
                     embed = EMBED_DEFAULT.copy()
-                    embed.title = "自動参加"
+                    embed.title = ":arrow_forward:自動参加"
                     embed.description = "ボイスチャンネルに自動で参加しました。"
                     await text_channel.send(embed=embed)
         
@@ -121,7 +124,7 @@ class VCConnection(commands.Cog):
                 if voice_client.channel.members and all(member.bot for member in voice_client.channel.members):
                     await voice_client.disconnect()
                     embed = EMBED_DEFAULT.copy()
-                    embed.title = "自動退出"
+                    embed.title = ":stop_button:自動退出"
                     embed.description = "参加者がいなくなったため、ボイスチャンネルから自動で退出しました。"
                     await text_channel.send(embed=embed)
 

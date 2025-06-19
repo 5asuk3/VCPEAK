@@ -26,7 +26,7 @@ class Dictionary(commands.Cog):
     async def show_dict(self, ctx):
         """ことばリストの内容を表示"""
         embed= EMBED_DEFAULT.copy()
-        embed.title = "ことばリスト"
+        embed.title = ":book:ことばリスト"
         embed.description = "ことば一覧です。以下の単語は、読み上げ時に置き換えられます。"
         for key, value in dictionary.items():
             embed.add_field(name=key, value=f"⤷{value}", inline=True)
@@ -41,7 +41,7 @@ class Dictionary(commands.Cog):
     async def add_word(self, ctx, from_word: str, to_word: str):
         """ことばリストに単語を追加"""
         embed= EMBED_DEFAULT.copy()
-        embed.title = "ことばリスト"
+        embed.title = ":book:ことばリスト"
 
         if from_word in dictionary:
             embed.description = f"単語「{from_word}」はすでに存在します。"
@@ -63,7 +63,7 @@ class Dictionary(commands.Cog):
     async def delete_word(self, ctx, word: str):
         """ことばリストから単語を削除"""
         embed= EMBED_DEFAULT.copy()
-        embed.title = "ことばリスト"
+        embed.title = ":book:ことばリスト"
 
         if word not in dictionary:
             embed.description = f"単語「{word}」はことばリストに存在しません。"

@@ -30,7 +30,7 @@ def is_owner_or_admin():
 async def handle_check_fauilure(ctx, error, embed_error):
     if isinstance(error, commands.CheckFailure):
         embed = embed_error.copy()
-        embed.title = "権限エラー"
+        embed.title = ":warning:権限エラー"
         embed.description = "このコマンドを実行する権限がありません。"
         await ctx.send(embed=embed, ephemeral=True)
         return True

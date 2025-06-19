@@ -41,7 +41,7 @@ class ServerConfig(commands.Cog):
     async def show_server_config(self, ctx):
         """サーバー設定を表示"""
         embed= EMBED_DEFAULT.copy()
-        embed.title = f"{ctx.guild.name}のサーバー設定"
+        embed.title = f":wrench:{ctx.guild.name}のサーバー設定"
         embed.description = "/server-config reset でデフォルト値にリセットできます。"
 
         server_id = str(ctx.guild.id)
@@ -64,7 +64,7 @@ class ServerConfig(commands.Cog):
     async def set_volume(self, ctx, volume: int=SERVER_DEFAULT['volume']):
         """ボイスチャンネルの音量を設定"""
         embed= EMBED_DEFAULT.copy()
-        embed.title = f"{ctx.guild.name}のサーバー設定"
+        embed.title = f":wrench:{ctx.guild.name}のサーバー設定"
 
         if volume < 0 or volume > 200:
             embed.description = "音量は0から200の範囲で設定してください。"
@@ -86,7 +86,7 @@ class ServerConfig(commands.Cog):
     async def set_auto_connect(self, ctx):
         """ボイスチャンネルへの自動参加を設定"""
         embed= EMBED_DEFAULT.copy()
-        embed.title = f"{ctx.guild.name}のサーバー設定"
+        embed.title = f":wrench:{ctx.guild.name}のサーバー設定"
 
         if ctx.author.voice is None or not ctx.author.voice.channel.permissions_for(ctx.guild.me).connect:
             embed.description = "ボイスチャンネルに参加してからコマンドを実行してください。\nすでに参加している場合は、botがそのチャンネルに参加する権限があることを確認してください。"
@@ -117,7 +117,7 @@ class ServerConfig(commands.Cog):
     async def set_auto_disconnect(self, ctx, value: bool=SERVER_DEFAULT['auto_disconnect']):
         """ボイスチャンネルからの自動退出を設定"""
         embed= EMBED_DEFAULT.copy()
-        embed.title = f"{ctx.guild.name}のサーバー設定"
+        embed.title = f":wrench:{ctx.guild.name}のサーバー設定"
 
         server_id=str(ctx.guild.id)
         self.ensure_server_settings(str(server_id))
@@ -134,7 +134,7 @@ class ServerConfig(commands.Cog):
     async def set_vc_notify(self, ctx, value: bool=SERVER_DEFAULT['join_leave_notification']):
         """ボイスチャンネルの参加・退出通知を設定"""
         embed= EMBED_DEFAULT.copy()
-        embed.title = f"{ctx.guild.name}のサーバー設定"
+        embed.title = f":wrench:{ctx.guild.name}のサーバー設定"
 
         server_id=str(ctx.guild.id)
         self.ensure_server_settings(str(server_id))
@@ -162,7 +162,7 @@ class ServerConfig(commands.Cog):
         
     async def cog_command_error(self, ctx, error):
         embed= EMBED_DEFAULT.copy()
-        embed.title = "コマンドエラー"
+        embed.title = ":warning:コマンドエラー"
         embed.description = str(error)
         embed.color = EMBED_COLOR_ERROR
         if await handle_check_fauilure(ctx, error, embed):

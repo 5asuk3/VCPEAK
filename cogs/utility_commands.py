@@ -61,7 +61,7 @@ class UtilityCommands(commands.Cog):
         """Botの情報を表示"""
         bot = self.bot
         embed = EMBED_DEFAULT.copy()
-        embed.title = "VCPEAK INFO"
+        embed.title = ":sparkles:VCPEAK INFO"
         embed.description = ("VCPEAKは、ボイスチャンネルでのTTS(Text To Speech)を提供するDiscord Botです。\n"
             "VOICEPEAKの最新AI音声合成技術を用いた高品質な音声でテキストを読み上げることが出来ます。\n"
             "\n"
@@ -75,7 +75,7 @@ class UtilityCommands(commands.Cog):
     @commands.hybrid_command(name="help", description="ヘルプメッセージを表示")
     async def help_command(self, ctx):
         embed = EMBED_DEFAULT.copy()
-        embed.title = "VCPEAK ヘルプ"
+        embed.title = ":question:VCPEAK ヘルプ"
         embed.add_field(name="/connect", value="ボイスチャンネルへの参加", inline=False)
         embed.add_field(name="/disconnect", value="ボイスチャンネルからの退出", inline=False)
         embed.add_field(name="/voice-list", value="キャラクター一覧の取得", inline=False)
@@ -90,7 +90,7 @@ class UtilityCommands(commands.Cog):
     async def reload(self, ctx):
         bot = self.bot
         embed = EMBED_DEFAULT.copy()
-        embed.title = "モジュールの再読み込み"
+        embed.title = ":wrench:モジュールの再読み込み"
         success = []
         failed = []
         for ext in list(bot.extensions):
@@ -118,7 +118,7 @@ class UtilityCommands(commands.Cog):
         """ボットを再起動"""
         bot = self.bot
         embed= EMBED_DEFAULT.copy()
-        embed.title = "ボットの再起動"
+        embed.title = ":wrench:ボットの再起動"
         embed.description = "ボットを再起動します。再起動後、必要に応じて/connectコマンドを使用して再接続させてください。"
         for guild_id, channel_id in joined_text_channels.items():
             guild = bot.get_guild(guild_id)
@@ -135,7 +135,7 @@ class UtilityCommands(commands.Cog):
 
     async def cog_command_error(self, ctx, error):
         embed= EMBED_DEFAULT.copy()
-        embed.title = "コマンドエラー"
+        embed.title = ":warning:コマンドエラー"
         embed.description = str(error)
         embed.color = EMBED_COLOR_ERROR
         if await handle_check_fauilure(ctx, error, embed):

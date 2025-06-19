@@ -43,7 +43,7 @@ class UserConfig(commands.Cog):
     async def show_user_config(self, ctx):
         """ユーザー設定を表示"""
         embed= EMBED_DEFAULT.copy()
-        embed.title = f"{ctx.author.display_name}のユーザー設定"
+        embed.title = f":gear:{ctx.author.display_name}のユーザー設定"
         embed.description = "/config reset でデフォルト値にリセットできます。"
 
         #TODO不正な値のものがあったらデフォルト値に戻す
@@ -64,7 +64,7 @@ class UserConfig(commands.Cog):
     async def set_narrator(self, ctx, narrator: str=USER_DEFAULT['narrator']):
         """キャラクターを設定"""
         embed= EMBED_DEFAULT.copy()
-        embed.title = f"{ctx.author.display_name}のユーザー設定"
+        embed.title = f":gear:{ctx.author.display_name}のユーザー設定"
 
         user_id = str(ctx.author.id)
         self.ensure_user_settings(user_id)
@@ -87,7 +87,7 @@ class UserConfig(commands.Cog):
     async def set_emotion(self, ctx, emotion: str="", value: int=0):
         """感情を設定"""
         embed= EMBED_DEFAULT.copy()
-        embed.title = f"{ctx.author.display_name}のユーザー設定"
+        embed.title = f":gear:{ctx.author.display_name}のユーザー設定"
 
         user_id = str(ctx.author.id)
         self.ensure_user_settings(user_id)
@@ -114,7 +114,7 @@ class UserConfig(commands.Cog):
     @app_commands.describe(speed="読み上げの速度(50～200)")
     async def set_speed(self, ctx, speed: int=USER_DEFAULT['speed']):
         embed= EMBED_DEFAULT.copy()
-        embed.title = f"{ctx.author.display_name}のユーザー設定"
+        embed.title = f":gear:{ctx.author.display_name}のユーザー設定"
 
         if speed < 50 or speed > 200:
             await ctx.send("速度は50から200の範囲で設定してください。")
@@ -134,7 +134,7 @@ class UserConfig(commands.Cog):
     @app_commands.describe(pitch="読み上げのピッチ(-300～300)")
     async def set_pitch(self, ctx, pitch: int=USER_DEFAULT['pitch']):
         embed= EMBED_DEFAULT.copy()
-        embed.title = f"{ctx.author.display_name}のユーザー設定"
+        embed.title = f":gear:{ctx.author.display_name}のユーザー設定"
         
         if pitch < -300 or pitch > 300:
             embed.description = "ピッチは-300から300の範囲で設定してください。"
@@ -155,7 +155,7 @@ class UserConfig(commands.Cog):
     async def randomize_user_config(self, ctx):
         """キャラクターや感情をランダムに設定"""
         embed= EMBED_DEFAULT.copy()
-        embed.title = f"{ctx.author.display_name}のユーザー設定"
+        embed.title = f":gear:{ctx.author.display_name}のユーザー設定"
 
         user_id = str(ctx.author.id)
         self.ensure_user_settings(user_id)
@@ -184,7 +184,7 @@ class UserConfig(commands.Cog):
     async def reset_user_config(self, ctx):
         """ユーザー設定をデフォルトにリセット"""
         embed= EMBED_DEFAULT.copy()
-        embed.title = f"{ctx.author.display_name}のユーザー設定"
+        embed.title = f":gear:{ctx.author.display_name}のユーザー設定"
         embed.description = "ユーザー設定をデフォルト値にリセットしました。"
 
         user_id = str(ctx.author.id)
