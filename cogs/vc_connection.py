@@ -90,7 +90,7 @@ class VCConnection(commands.Cog):
                     if server_settings[str(member.guild.id)].get('join_leave_notification', SERVER_DEFAULT['join_leave_notification']):
                         await text_channel.send(f":inbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルに参加しました。")
                     embed = EMBED_DEFAULT.copy()
-                    embed.title = ":arrow_forward:自動参加"
+                    embed.title = ":speech_balloon:自動参加"
                     embed.description = "ボイスチャンネルに自動で参加しました。"
                     await text_channel.send(embed=embed)
         
@@ -124,7 +124,7 @@ class VCConnection(commands.Cog):
                 if voice_client.channel.members and all(member.bot for member in voice_client.channel.members):
                     await voice_client.disconnect()
                     embed = EMBED_DEFAULT.copy()
-                    embed.title = ":stop_button:自動退出"
+                    embed.title = ":zzz:自動退出"
                     embed.description = "参加者がいなくなったため、ボイスチャンネルから自動で退出しました。"
                     await text_channel.send(embed=embed)
 
