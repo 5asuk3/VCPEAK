@@ -2,7 +2,7 @@ from discord import app_commands
 from discord.ext import commands
 from utils import save_json
 from config import EMBED_DEFAULT, EMBED_COLOR_ERROR, dictionary, EMBEDED_DICTIONALY, dict_pattern
-from config import update_dict_pattern
+from config import update_dict_pattern, sort_dict
 
 
 class Dictionary(commands.Cog):
@@ -50,8 +50,9 @@ class Dictionary(commands.Cog):
             return
         
         dictionary[from_word] = to_word
+        sort_dict()
+        update_dict_pattern()
         save_json("dict.json", dictionary)
-        update_dict_pattern()  # ことばリストのパターンを更新
         embed.description = f"単語「{from_word}」をことばリストに追加しました。読み: {to_word}"
         await ctx.send(embed=embed)
 
@@ -71,8 +72,9 @@ class Dictionary(commands.Cog):
             return
         
         del dictionary[word]
+        sort_dict()
+        update_dict_pattern()
         save_json("dict.json", dictionary)
-        update_dict_pattern()  # ことばリストのパターンを更新
         embed.description = f"単語「{word}」をことばリストから削除しました。"
         await ctx.send(embed=embed)
 
