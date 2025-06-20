@@ -1,9 +1,8 @@
 import os
 import sys
-import discord
 from discord.ext import commands
-from config import NARRATORS, EMOTIONS, SERVER_DEFAULT, USER_DEFAULT, EMBED_DEFAULT, EMBED_COLOR_ERROR, joined_text_channels
 from utils import is_owner_or_admin, handle_check_fauilure
+from config import NARRATORS, EMOTIONS, SERVER_DEFAULT, USER_DEFAULT, EMBED_DEFAULT, EMBED_COLOR_ERROR, joined_text_channels
 
 
 class UtilityCommands(commands.Cog):

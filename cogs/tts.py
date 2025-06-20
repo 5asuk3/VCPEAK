@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 from config import joined_text_channels
 from message_parser import pre_parse_message, parse_message

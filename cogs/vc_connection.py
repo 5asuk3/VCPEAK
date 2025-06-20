@@ -1,4 +1,3 @@
-import itertools
 from discord.ext import commands
 from config import SERVER_DEFAULT, server_settings, joined_text_channels, EMBED_DEFAULT, EMBED_COLOR_ERROR
 from message_parser import parse_message
