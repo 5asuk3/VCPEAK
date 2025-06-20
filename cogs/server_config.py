@@ -52,7 +52,7 @@ class ServerConfig(commands.Cog):
         else :
             embed.add_field(name="自動参加チャンネル", value="なし", inline=False)
         embed.add_field(name="自動退出", value=settings['auto_disconnect'], inline=True)
-        embed.add_field(name="入退出通知の読み上げ", value=settings['join_leave_notifaication'], inline=True)
+        embed.add_field(name="入退出通知の読み上げ", value=settings['join_leave_notification'], inline=True)
         embed.add_field(name="音量", value=settings['volume'], inline=True)
         
         await ctx.send(embed=embed) 
