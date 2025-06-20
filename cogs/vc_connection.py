@@ -16,26 +16,32 @@ class VCConnection(commands.Cog):
         """ボイスチャンネルに参加"""
         if ctx.author.voice and ctx.author.voice.channel.permissions_for(ctx.guild.me).connect:
             channel = ctx.author.voice.channel
+            embed = EMBED_DEFAULT.copy()
             # すでにボイスチャンネルに参加している場合
             if ctx.guild.voice_client is not None:
                 if ctx.guild.voice_client.channel != channel:
                     await ctx.guild.voice_client.move_to(channel)
                     joined_text_channels[ctx.guild.id] = ctx.channel.id
-                    await ctx.send(":incoming_envelope:ボイスチャンネルを移動しました。")
+                    embed.title = ":incoming_envelope:ボイスチャンネル間の移動"
+                    embed.description = "ボイスチャンネルを移動しました。"
+                    await ctx.send(embed=embed)
                     return
                 else:
                     await ctx.voice_client.disconnect()
                     await channel.connect()
                     await ctx.voice_client.guild.change_voice_state(channel=channel, self_mute=False, self_deaf=True)
-                    await ctx.send(":arrows_counterclockwise:すでにボイスチャンネルに参加していたため、再参加しました。")
+                    embed.title = ":arrows_counterclockwise:ボイスチャンネルへの再参加"
+                    embed.description = "すでにボイスチャンネルに参加していたため、再参加しました。"
+                    await ctx.send(embed=embed)
                     joined_text_channels[ctx.guild.id] = ctx.channel.id
                     return
             await channel.connect()
             await ctx.voice_client.guild.change_voice_state(channel=channel, self_mute=False, self_deaf=True)
             joined_text_channels[ctx.guild.id] = ctx.channel.id
-            await ctx.send(":speech_balloon:ボイスチャンネルに参加しました。")
+            embed.title = ":speech_balloon:ボイスチャンネルへの参加"
+            embed.description = "ボイスチャンネルに参加しました。"
+            await ctx.send(embed=embed)
         else:
-            embed = EMBED_DEFAULT.copy()
             embed.title = ":warning:参加エラー"
             embed.description = "ボイスチャンネルに参加できません。\nボイスチャンネルに参加してからコマンドを実行してください。\nすでに参加している場合は、botがそのチャンネルに参加する権限があることを確認してください。"
             embed.color = EMBED_COLOR_ERROR
@@ -45,12 +51,14 @@ class VCConnection(commands.Cog):
     @commands.hybrid_command(name="disconnect", description="ボイスチャンネルから退出")
     async def disconnect(self, ctx):
         """ボイスチャンネルから退出"""
+        embed= EMBED_DEFAULT.copy()
         if ctx.voice_client:
             await ctx.voice_client.disconnect()
-            await ctx.send(":zzz:ボイスチャンネルから退出しました。")
+            embed.title = ":zzz:ボイスチャンネルからの退出"
+            embed.description = "ボイスチャンネルから退出しました。"
+            await ctx.send(embed=embed)
             joined_text_channels.pop(ctx.guild.id, None)
         else:
-            embed = EMBED_DEFAULT.copy()
             embed.title = ":warning:退出エラー"
             embed.description = "ボイスチャンネルに参加していません。"
             embed.color = EMBED_COLOR_ERROR

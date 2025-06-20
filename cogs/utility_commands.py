@@ -37,7 +37,7 @@ class UtilityCommands(commands.Cog):
     async def get_narrator(self, ctx):
         """キャラクター一覧の表示"""
         embed= EMBED_DEFAULT.copy()
-        embed.title = "キャラクター一覧"
+        embed.title = ":speaking_head:キャラクター一覧"
         embed.description = "現在使用可能なキャラクターと感情の一覧です。\n感情はキャラクターごとに内容が異なります。"
         for narrator in NARRATORS:
             emotion=", ".join(EMOTIONS[narrator])
@@ -52,7 +52,7 @@ class UtilityCommands(commands.Cog):
         latency = round(bot.latency * 1000)
         
         embed = EMBED_DEFAULT.copy()
-        embed.title = "応答速度"
+        embed.title = ":wrench:応答速度"
         embed.description = f"現在の応答速度: {latency}ms"
         await ctx.send(embed=embed)
 
