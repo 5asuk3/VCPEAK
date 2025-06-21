@@ -60,13 +60,13 @@ class ServerConfig(commands.Cog):
 
     @is_owner_or_admin()
     @server_config.command(name="volume", description="ボイスチャンネルの音量を設定")
-    @app_commands.describe(volume="サーバー全体での読み上げ音量(0～200)")
-    async def set_volume(self, ctx, volume: int=SERVER_DEFAULT['volume']):
+    @app_commands.describe(value="サーバー全体での読み上げ音量(0～200)")
+    async def set_volume(self, ctx, value: int=SERVER_DEFAULT['volume']):
         """ボイスチャンネルの音量を設定"""
         embed= EMBED_DEFAULT.copy()
         embed.title = f":wrench:{ctx.guild.name}のサーバー設定"
 
-        if volume < 0 or volume > 200:
+        if value < 0 or value > 200:
             embed.description = "音量は0から200の範囲で設定してください。"
             embed.color = EMBED_COLOR_ERROR
             await ctx.send(embed=embed)
@@ -74,10 +74,10 @@ class ServerConfig(commands.Cog):
         
         server_id = str(ctx.guild.id)
         self.ensure_server_settings(server_id)
-        server_settings[server_id]["volume"] = volume
+        server_settings[server_id]["volume"] = value
         save_json("servers.json", server_settings)
 
-        embed.description = f"ボイスチャンネルの音量を{volume}%に設定しました。"
+        embed.description = f"ボイスチャンネルの音量を{value}%に設定しました。"
         await ctx.send(embed=embed)
         
 

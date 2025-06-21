@@ -111,32 +111,32 @@ class UserConfig(commands.Cog):
 
 
     @user_config.command(name="speed", description="音声の速度を設定")
-    @app_commands.describe(speed="読み上げの速度(50～200)")
-    async def set_speed(self, ctx, speed: int=USER_DEFAULT['speed']):
+    @app_commands.describe(value="読み上げの速度(50～200)")
+    async def set_speed(self, ctx, value: int=USER_DEFAULT['speed']):
         embed= EMBED_DEFAULT.copy()
         embed.title = f":gear:{ctx.author.display_name}のユーザー設定"
 
-        if speed < 50 or speed > 200:
+        if value < 50 or value > 200:
             await ctx.send("速度は50から200の範囲で設定してください。")
             embed.color = EMBED_COLOR_ERROR
             return
         
         user_id = str(ctx.author.id)
         self.ensure_user_settings(user_id)
-        user_settings[user_id]["speed"] = speed
+        user_settings[user_id]["speed"] = value
         save_json("users.json", user_settings)
 
-        embed.description = f"音声の速度を{speed}%に設定しました。"
+        embed.description = f"音声の速度を{value}%に設定しました。"
         await ctx.send(embed=embed)
 
 
     @user_config.command(name="pitch", description="音声のピッチを設定")
-    @app_commands.describe(pitch="読み上げのピッチ(-300～300)")
-    async def set_pitch(self, ctx, pitch: int=USER_DEFAULT['pitch']):
+    @app_commands.describe(value="読み上げのピッチ(-300～300)")
+    async def set_pitch(self, ctx, value: int=USER_DEFAULT['pitch']):
         embed= EMBED_DEFAULT.copy()
         embed.title = f":gear:{ctx.author.display_name}のユーザー設定"
         
-        if pitch < -300 or pitch > 300:
+        if value < -300 or value > 300:
             embed.description = "ピッチは-300から300の範囲で設定してください。"
             embed.color = EMBED_COLOR_ERROR
             await ctx.send(embed=embed)
@@ -144,10 +144,10 @@ class UserConfig(commands.Cog):
         
         user_id = str(ctx.author.id)
         self.ensure_user_settings(user_id)
-        user_settings[user_id]["pitch"] = pitch
+        user_settings[user_id]["pitch"] = value
         save_json("users.json", user_settings)
         
-        embed.description = f"音声のピッチを{pitch}%に設定しました。"
+        embed.description = f"音声のピッチを{value}%に設定しました。"
         await ctx.send(embed=embed)
 
 

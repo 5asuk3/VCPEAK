@@ -12,11 +12,13 @@ from config import EMBEDED_DICTIONALY, dictionary, dict_pattern
 
 def get_url_title(url):
     try:
-        response = requests.get(url, timeout=5)
+        response = requests.get(url, headers={"User-Agent": ''}, timeout=5)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
         title = soup.title.string.strip() if soup.title and soup.title.string else "タイトルなし"
-        return title[:20] + "、以下略。"
+        if len(title) > 20:
+            return title[:20] + "、以下略。"
+        return title
     except Exception as e:
         logging.error(f"URLのタイトル取得に失敗: {url} - {e}")
         return "タイトル取得失敗"
