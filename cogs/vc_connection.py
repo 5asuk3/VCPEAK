@@ -94,8 +94,6 @@ class VCConnection(commands.Cog):
                     voice_client = await voice_channel.connect()
                     await voice_client.guild.change_voice_state(channel=voice_channel, self_mute=False, self_deaf=True)
                     joined_text_channels[member.guild.id] = text_channel.id
-                    if server_settings[str(member.guild.id)].get('join_leave_notification', SERVER_DEFAULT['join_leave_notification']):
-                        await text_channel.send(f":inbox_tray:`{member.display_name}(@{member.name})`がボイスチャンネルに参加しました。")
                     embed = EMBED_DEFAULT.copy()
                     embed.title = ":speech_balloon:自動参加"
                     embed.description = "ボイスチャンネルに自動で参加しました。"
